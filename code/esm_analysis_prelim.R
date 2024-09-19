@@ -1,20 +1,30 @@
-# Analyzing ESM data
+# Initial exploration of ESM data
 
+# Setup ----
+
+# Packages
 library(here)
 library(janitor)
 library(readxl)
+library(writexl)
 library(viridis)
+library(rms)
 library(aqp)
 library(tidyverse)
 
-# read in data ----
+# Data
 esm1 <- read_excel(here("data_processed", "Output_ESM.xlsx"), sheet="Output_ESM")
 esm2 <- read_excel(here("data_processed", "Output_ESM2.xlsx"), sheet="Output_ESM2")
 fd <- read_excel(here("data_processed", "Output_FD.xlsx"), sheet="Output_FD")
 soc_pedon <- read.csv(here("data_processed", "04_soc_stock_pedon.csv"))
 soc_horizon <- read.csv(here("data_processed", "04_soc_stock_horizon.csv"))
 
-# initial checks ----
+# Functions
+source(here("code","esm_functions.R"))
+
+# Initial data checks ----
+# This dataset: calculated ESM and FD SOC stocks where entire DSP4SH dataset is used as input and SimpleESM calculates reference masses automatically
+
 # want to check that FD gives same results as our fixed depth calculations
 
 fd_100 <- fd %>%
@@ -218,10 +228,10 @@ mass_min_osu <- mass_osu_all %>%
 # note - I don't know that using the minimum soil mass in each layer is the best way to choose a reference mass. I just needed something to work with.
 
 # ESM calcs for OSU project with manual reference masses ----
-fd_osu_manual <- read.csv(here("data_processed", "simple_esm", "Output_FD_osu_manual.csv"), sep = ";")
-esm1_osu_manual <- read.csv(here("data_processed", "simple_esm", "Output_ESM_osu_manual.csv"), sep = ";") %>%
+fd_osu_manual <- read.csv(here("data_processed",  "Output_FD_osu_manual.csv"), sep = ";")
+esm1_osu_manual <- read.csv(here("data_processed", "Output_ESM_osu_manual.csv"), sep = ";") %>%
   unite("sample_id", Point:Layer, sep="-", remove=FALSE)
-esm2_osu_manual <- read.csv(here("data_processed", "simple_esm", "Output_ESM2_osu_manual.csv"), sep = ";") %>%
+esm2_osu_manual <- read.csv(here("data_processed", "Output_ESM2_osu_manual.csv"), sep = ";") %>%
   unite("sample_id", Point:Layer, sep="-", remove=FALSE)
 
 min(esm1_osu_manual$Lower_cm)
@@ -337,11 +347,6 @@ ggplot(compare_osu_manual%>% filter(dsp_pedon_id !="JoV2-3"), # filter out one s
 kansas <- soc_horizon %>%
   filter(project=="KansasState")
 
-# promote to SPC
-kansas_spc <- kansas
-depths(kansas_spc) <- dsp_pedon_id ~ hrzdep_t + hrzdep_b
-hzdesgnname(kansas_spc) <- 'hzdesg'
-
 # Add generalized horizon labels (determined visually in "dsp4sh_prelim/code/02_profile_check.R")
 # Sequence: A, Bt, Btk, Bk 
 n_ks <- c('A', 'Bt', 'Btk', 'Bk') # generalized horizon label sequence
@@ -350,21 +355,19 @@ p_ks <- c('^A',
           '^Btk',
           '^Bk')
 
-# Run function to estimate horizon depth boundaries
-genhz_depths(kansas_spc, n_ks, p_ks)
+# Run function to assign depths to generalized horizons
+slice_vect <- seq(from = 0, to = 99, by = 1) # tell function what depths you want
+dd <- NULL # need to run this or function will not work
+depths_kansas_df <- genhz_depths(kansas, n_ks, p_ks)
 
 # Use estimated horizon boundaries to calculate soil mass in each horizon ----
-# Calculate mass in each 1-cm increment
-mass_kansas <- horizons(kansas_slice) %>%
-  mutate(mass = (hrzdep_b - hrzdep_t) * bd_fill * 100)
-
-# Make vector of generalized horizon depths
-kansas_depths <- c(10, 23,56,85,100)
+# Make vector of desired horizon depths
+depths_kansas <- c(10,23,56,85,100)
 
 # Calculated aggregated soil masses and save output
-mass_agg_ks <- soil_mass_aggregate(mass_kansas, kansas_depths)
+mass_agg_ks <- soil_mass_aggregate(kansas, depths_kansas)
 
-# Compare Kansas ESM calcs with FD calcs ----
+# Compare Kansas ESM minimum mass calcs with FD calcs ----
 # Read in calculations
 fd_kansas_min <- read.csv(here("data_processed", "Output_FD_kansas_min.csv"), sep = ";")
 esm1_kansas_min <- read.csv(here("data_processed", "Output_ESM_kansas_min.csv"), sep = ";") %>%
@@ -373,7 +376,7 @@ esm2_kansas_min <- read.csv(here("data_processed", "Output_ESM2_kansas_min.csv")
   unite("sample_id", Point:Layer, sep="-", remove=FALSE)
 
 # Calculate fixed depth SOC stocks with depth increments that mirror ESM increments 
-soc_agg_ks <- soc_stock_fd(kansas_slice, kansas_depths)
+soc_agg_ks <- soc_stock_fd(kansas, depths_kansas)
 
 # Join into one dataframe
 compare_kansas_min <- esm1_kansas_min %>%
@@ -393,7 +396,8 @@ compare_kansas_min <- esm1_kansas_min %>%
                names_to = c(".value", "method"),
                names_sep="_"
   ) %>%
-  rename(soc_stock_calc = soc)
+  rename(soc_stock_calc = soc) %>%
+  mutate(reference = "min")
 
 # Plot comparison of SOC stocks in each layer
 # Labels for layers
@@ -419,7 +423,8 @@ ggplot(compare_kansas_min,
   scale_fill_viridis(discrete=TRUE) +
   theme_classic()
 
-# What would happen if we used only BAU for the reference masses? ----
+# Compare Kansas ESM maximum reference mass calcs with FD calcs ----
+# This is sort of analogous to using the BAU as the reference case
 # In almost every case, I imagine that Ref is going to have lower BD and therefore less mass in a fixed depth than BAU and SHM. Using BAU as the reference mass would require getting deeper in the Ref samples...
 # can test this by using the max values as ESM input
 # Read in calculations
@@ -446,7 +451,8 @@ compare_kansas_max <- esm1_kansas_max %>%
                names_to = c(".value", "method"),
                names_sep="_"
   ) %>%
-  rename(soc_stock_calc = soc)
+  rename(soc_stock_calc = soc) %>%
+  mutate(reference = "max")
 
 # Plot comparison of calculated SOC stocks
 ggplot(compare_kansas_max,
@@ -465,3 +471,58 @@ ggplot(compare_kansas_max,
   theme_classic()
 
 # How was function even able to calculate ESM masses for soil depths that are below what was sampled? I get that the cubic spline can probably do that for the ESM2 calcs, but what about classical ESM?
+
+# Compare Kansas ESM average calcs with FD calcs ----
+# Read in calculations
+esm1_kansas_avg <- read.csv(here("data_processed", "Output_ESM_kansas_avg.csv"), sep = ";") %>%
+  unite("sample_id", Point:Layer, sep="-", remove=FALSE)
+esm2_kansas_avg <- read.csv(here("data_processed", "Output_ESM2_kansas_avg.csv"), sep = ";") %>%
+  unite("sample_id", Point:Layer, sep="-", remove=FALSE)
+
+# Join into one dataframe
+compare_kansas_avg <- esm1_kansas_avg %>%
+  select(Campaign, Treatment, Point, sample_id, Layer, Lower_cm, SOC_stock_ESM) %>%
+  rename(project = Campaign,
+         label=Treatment,
+         dsp_pedon_id = Point,
+         depth_esm1 = Lower_cm,
+         soc_esm1 = SOC_stock_ESM) %>%
+  left_join(select(esm2_kansas_avg, 
+                   sample_id, Lower_cm, SOC_stock_ESM2), by="sample_id") %>%
+  rename(soc_esm2 = SOC_stock_ESM2,
+         depth_esm2 = Lower_cm) %>%
+  left_join(soc_agg_ks, by=c("sample_id", "dsp_pedon_id")) %>%
+  select(-layer) %>%
+  pivot_longer(cols = depth_esm1:depth_fd,
+               names_to = c(".value", "method"),
+               names_sep="_"
+  ) %>%
+  rename(soc_stock_calc = soc) %>%
+  mutate(reference = "avg")
+
+# Plot comparison of calculated SOC stocks
+ggplot(compare_kansas_avg,
+       aes(x=label, y=soc_stock_calc, fill=method)) +
+  geom_boxplot() +
+  facet_wrap(~Layer, scales="free", labeller = labeller(Layer = layer_labels_ks)) +
+  scale_fill_viridis(discrete=TRUE) +
+  theme_classic()
+
+# Plot comparison of depths used
+ggplot(compare_kansas_avg,
+       aes(x=label, y=depth, fill=method)) +
+  geom_boxplot() +
+  facet_wrap(~Layer, scales="free", labeller = labeller(Layer = layer_labels_ks)) +
+  scale_fill_viridis(discrete=TRUE) +
+  theme_classic()
+
+# Put all Kansas ESM methods together (min, max, average) ----
+kansas_esm_all <- rbind(compare_kansas_min, compare_kansas_max, compare_kansas_avg)
+
+# Compare 0-10 cm SOC stocks via all reference methods
+ggplot(kansas_esm_all %>% filter(Layer==1),
+       aes(x=label, y=soc_stock_calc, fill=method)) +
+  geom_boxplot() +
+  facet_wrap(~reference) +
+  scale_fill_viridis(discrete=TRUE) +
+  theme_classic()

@@ -1,37 +1,41 @@
 # Helper functions for ESM calculations :)
 
-# Function to calculate estimated horizon boundaries for generalized horizons ----
-# Requirements: SPC object, vector with generalized horizon names, vector with generalized horizon patterns
+# Function to promote SPC object, assign generalized horizon names, and calculate depth increments ----
+# Input: dataframe object, vector with generalized horizon names, vector with generalized horizon patterns, vector of desired dicing depth increments
 
-genhz_depths <- function(spc, names, patt){
+genhz_depths <- function(dataframe, names, patt){
+
+  # Promote to SPC
+  spc <- dataframe
+  aqp::depths(spc) <- dsp_pedon_id ~ hrzdep_t + hrzdep_b
+  aqp::hzdesgnname(spc) <- 'hzdesg'
+  
   # Add generalized horizon labels, remove unused levels, and make factor
-  spc$genhz <- generalize.hz(spc$hzdesg, names, patt) 
+  spc$genhz <- aqp::generalize.hz(spc$hzdesg, names, patt) 
   spc$genhz[spc$genhz == "not-used"] <- NA
   spc$genhz <- factor(spc$genhz)
   
   # keep track of generalized horizon names for later
   hz_names <- levels(spc$genhz)
   
-  # define vector for dicing
-  slice_vect <- seq(from = 0, to = 99, by = 1)
-  
   # dice into 1-cm intervals
-  dice <- aqp::dice(spc, slice_vect ~ genhz)
+  dice <- aqp::dice(spc, seq(from = 0, to = 99, by = 1) ~ genhz)
   dice$genhz <- factor(dice$genhz, levels = hz_names)
   
   # Logistic Proportional-Odds Ordinal Regression Model
-  dd <- rms::datadist(horizons(dice))
+  horizons <- aqp::horizons(dice)
+  dd <- rms::datadist(horizons)
   options(datadist = "dd")
-  l.genhz <- orm(genhz ~ rcs(hrzdep_t), data = horizons(dice), x = TRUE, y = TRUE)
+  l.genhz <- orm(genhz ~ rcs(hrzdep_t), data = horizons, x = TRUE, y = TRUE)
   
   # predict along same depths: columns are the class-wise probability fitted.ind --> return all probability estimates
-  predict <- data.frame(predict(l.genhz, data.frame(hrzdep_t = slice_vect), type = "fitted.ind"))
+  predict <- data.frame(predict(l.genhz, data.frame(hrzdep_t = seq(from = 0, to = 99, by = 1)), type = "fitted.ind"))
   
   # re-name, rms model output give funky names
   names(predict) <- hz_names
- 
-   # add depths
-  predict$top <- slice_vect
+  
+  # add depths
+  predict$top <- seq(from = 0, to = 99, by = 1)
   
   # maximum likelihood depths
   predict_ml <- get.ml.hz(predict, o.names = hz_names)
@@ -41,8 +45,21 @@ genhz_depths <- function(spc, names, patt){
 }
 
 # Function to calculate aggregated masses in each depth increment and return max, min, and average values ----
+# Required input: dataframe of soil horizon data, vector with desired bottom depths of each depth increment
 soil_mass_aggregate <- function(input, depth){
+  # Promote to SPC and dice into 1-cm increments
+  spc <- input
+  aqp::depths(spc) <- dsp_pedon_id ~ hrzdep_t + hrzdep_b
+  
+  # dice into 1-cm intervals
+  dice <- aqp::dice(spc, fm=0:99 ~ bd_fill)
+  
+  dice_mass <- horizons(dice) %>%
+    mutate(mass = (hrzdep_b - hrzdep_t) * bd_fill * 100)
+  
+  #Initialize output vector
   out <- vector("list", length(depth))
+  
   min_max_mean <- list(
     min = ~min(.x, na.rm=TRUE), 
     max = ~max(.x, na.rm=TRUE),
@@ -51,14 +68,14 @@ soil_mass_aggregate <- function(input, depth){
   
   for (i in seq_along(depth)) {
     if (i == 1) {
-      out[[i]] <- input %>%
+      out[[i]] <- dice_mass %>%
         filter(hrzdep_t < depth[[i]]) %>%
         group_by(dsp_pedon_id) %>%
         dplyr::summarize(mass_agg = sum(mass)) %>%
         mutate(depth_cat = depth[[i]])
       
     } else {
-      out[[i]] <- input %>%
+      out[[i]] <- dice_mass %>%
         filter(hrzdep_t >=depth[[i-1]] & hrzdep_t < depth[[i]]) %>%
         group_by(dsp_pedon_id) %>%
         dplyr::summarize(mass_agg = sum(mass)) %>%
@@ -75,9 +92,16 @@ soil_mass_aggregate <- function(input, depth){
 }
 
 # Function to calculate SOC stocks with depth increments that mirror ESM increments ----
+# Required input: dataframe of soil horizon data that includes columns bd_fill, soc_fill, and coarse_frag_fill, vectorwith desired bottom depths of each depth increment
 soc_stock_fd <- function(input, depth){
+  # Promote to SPC and dice into 1-cm increments
+  spc <- input
+  aqp::depths(spc) <- dsp_pedon_id ~ hrzdep_t + hrzdep_b
   
-  soc <- aqp::horizons(input) %>%
+  # dice into 1-cm intervals
+  dice <- aqp::dice(spc, fm=0:99 ~ bd_fill + soc_fill + coarse_frag_fill)
+  
+  soc <- horizons(dice) %>%
     mutate(hrzdepth = hrzdep_b - hrzdep_t,
            cf_mult = 1 - (coarse_frag_fill/100)) %>%
     mutate(soc_stock_hrz = soc_fill * bd_fill * hrzdepth * cf_mult)
