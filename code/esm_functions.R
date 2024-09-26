@@ -114,14 +114,16 @@ soc_stock_fd <- function(input, depth){
         filter(hrzdep_t < depth[[i]]) %>%
         group_by(dsp_pedon_id) %>%
         dplyr::summarize(soc_fd = sum(soc_stock_hrz)) %>%
-        mutate(depth_cat = depth[[i]])
+        mutate(topdepth_fd = 0,
+               depth_cat = depth[[i]])
       
     } else {
       out[[i]] <- soc %>%
         filter(hrzdep_t >=depth[[i-1]] & hrzdep_t < depth[[i]]) %>%
         group_by(dsp_pedon_id) %>%
         dplyr::summarize(soc_fd = sum(soc_stock_hrz)) %>%
-        mutate(depth_cat = depth[[i]])
+        mutate(topdepth_fd = -depth[[i-1]],
+               depth_cat = depth[[i]])
     }
   }
   

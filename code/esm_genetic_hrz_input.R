@@ -113,7 +113,7 @@ join <- nest_join(nested, n_p, by="project") %>%
 
 dd <- NULL # need to run this or depth assignment function will not work
 
-depths_df <- join %>%
+depths_df_fun <- join %>%
   filter(project!="Illinois", project!="UTRGV") %>%
   mutate(depths = purrr::pmap(list(data, name, pattern), genhz_depths)) %>%
   select(project, data, depths) %>%
@@ -382,10 +382,11 @@ esm1_df <- do.call(rbind.data.frame, esm1_data) %>%
                               grepl("mean", rowname) ~ "mean")) %>%
   select(-rowname) %>%
   unite("sample_id", Point:Layer, sep="-", remove=FALSE) %>%
-  select(Campaign, ref_stat, Treatment, Point, sample_id, Layer, Lower_cm, SOC_stock_ESM) %>%
+  select(Campaign, ref_stat, Treatment, Point, sample_id, Layer, Upper_cm, Lower_cm, SOC_stock_ESM) %>%
   rename(project = Campaign,
          label=Treatment,
          dsp_pedon_id = Point,
+         topdepth_esm1 = Upper_cm,
          depth_esm1 = Lower_cm,
          soc_esm1 = SOC_stock_ESM,
          layer = Layer)
@@ -398,10 +399,11 @@ esm2_df <- do.call(rbind.data.frame, esm2_data) %>%
                               grepl("mean", rowname) ~ "mean")) %>%
   select(-rowname) %>%
   unite("sample_id", Point:Layer, sep="-", remove=FALSE) %>%
-  select(Campaign, ref_stat, Treatment, Point, sample_id, Layer, Lower_cm, SOC_stock_ESM2) %>%
+  select(Campaign, ref_stat, Treatment, Point, sample_id, Layer, Upper_cm, Lower_cm, SOC_stock_ESM2) %>%
   rename(project = Campaign,
          label=Treatment,
          dsp_pedon_id = Point,
+         topdepth_esm2 = Upper_cm,
          depth_esm2 = Lower_cm,
          soc_esm2 = SOC_stock_ESM2,
          layer = Layer)
@@ -416,15 +418,23 @@ soc_agg_df <- depths_df %>%
 
 # Join dataframes together
 esm_join <- esm1_df %>%
-  left_join(select(esm2_df, ref_stat, sample_id, depth_esm2, soc_esm2), by=c("sample_id", "ref_stat")) %>%
+  left_join(select(esm2_df, ref_stat, sample_id, topdepth_esm2, depth_esm2, soc_esm2), by=c("sample_id", "ref_stat")) %>%
   left_join(soc_agg_df, by=c("sample_id", "dsp_pedon_id", "layer", "project"))
 
 # Make longer
 esm_join_long <- esm_join %>%
-  pivot_longer(cols = depth_esm1:depth_fd,
+  pivot_longer(cols = topdepth_esm1:depth_fd,
                names_to = c(".value", "method"),
                names_sep="_") %>%
-  mutate(depth_increments = "genetic_hrz")
+  mutate(depth_increments = "genetic_hrz") %>%
+  mutate(apparent_depth = case_when(method == "fd" & layer==1 ~ glue::glue("0{round(depth, 1)} cm"),
+                                    method == "fd" & layer > 1 ~ glue::glue("{-round(topdepth, 1)}{round(depth,1)} cm")),
+         actual_depth = case_when(layer==1 ~ glue::glue("0{round(depth, 1)} cm"),
+                                  layer > 1 ~ glue::glue("{-round(topdepth, 1)}{round(depth,1)} cm"))) %>%
+  mutate(ref_stat =  case_when(method== "fd" ~ "fd",
+                               method!="fd" ~ ref_stat)) %>%
+  group_by(project, layer) %>%
+  fill(apparent_depth, .direction="up")
 
 # Write csv
 write_csv(esm_join_long, here("data_processed", "esm_genetic_hrz.csv"))

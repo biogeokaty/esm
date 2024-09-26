@@ -1,0 +1,341 @@
+---
+title: "ESM Methods Comparison"
+author: "Katy Dynarski"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Packages
+library(here)
+library(janitor)
+library(readxl)
+library(writexl)
+library(viridis)
+library(paletteer)
+library(rms)
+library(aqp)
+library(cowplot)
+library(lme4)
+library(multcomp)
+library(ggeffects)
+library(flextable)
+library(tidyverse)
+
+# Data
+esm_join <- read.csv(here("data_processed", "esm_join.csv"))
+
+# List of projects
+projects <- esm_join %>% 
+  distinct(project) %>% 
+  pull()
+
+# Make list of summary functions - useful for generating summary tables
+sd_cv <- list(
+  sd = ~round(sd(.x, na.rm = TRUE), 2),
+  cv = ~round(((sd(.x, na.rm=TRUE) / mean(.x, na.rm=TRUE))* 100), 2)
+)
+
+# depth layer labels
+std_depth_labels <- c(
+  "1" = "0-10 cm",
+  "2" = "10-30 cm",
+  "3" = "30-50 cm",
+  "4" = "50-75 cm",
+  "5" = "75-100 cm"
+)
+```
+
+# Exploratory figures - how does ESM choice influence total calculated SOC stocks?
+
+## Compare calculated SOC stocks in different depth increments
+
+Compare calculated 0-10 cm SOC stocks in all projects, gridded by method and colored by reference mass summary statistic. This will be the same for genetic horizon and standard depth increment data, so we can choose either to plot.
+
+```{r boxplot of 0-10cm SOC stocks via different ESM methods}
+esm_standard <- esm_join %>%
+  filter(depth_increments == "standard")
+
+ggplot(esm_standard %>% filter(layer==1),
+       aes(x=label, y=soc, fill=ref_stat)) +
+  geom_boxplot() +
+  facet_wrap(~method) +
+  labs(y="SOC Stock (Mg/ha) in 0-10 cm") +
+  scale_fill_paletteer_d("nationalparkcolors::Arches", name="Reference Mass") +
+  theme_classic()
+```
+
+It's hard to read/interpret this because the projects have a lot of variability in SOC - plot them individually instead
+
+```{r boxplot of 0-10 cm SOC stocks, gridded by project}
+purrr::map(.x = projects, 
+           .f = ~{
+             esm_standard %>% 
+               filter(layer == 1, project==.x) %>%
+               ggplot(aes(x=label, y=soc, fill=ref_stat)) +
+               geom_boxplot() +
+               facet_wrap(~method) +
+               labs(x="Management",
+                    y="SOC Stock (Mg/ha) in 0-10 cm",
+                    title=glue::glue(.x, " - 0-10 cm SOC Stocks")) +
+               scale_fill_paletteer_d("nationalparkcolors::Arches", name="Reference Mass") +
+               theme_classic() +
+               theme(plot.title=element_text(hjust=0.5))
+
+                                     })
+```
+
+Calculate SOC stock totals for different depths (0-10cm, 0-30cm, and 0-100 cm):
+
+```{r calculate SOC stock totals for different depth increments}
+esm_standard_totals <- esm_standard %>%
+  group_by(project, depth_increments, method_long, method, ref_stat, label, dsp_pedon_id) %>%
+  summarize(soc_0to10 = sum(soc[apparent_depth=="0-10 cm"]),
+            soc_0to30 = sum(soc[apparent_depth=="0-10 cm" | apparent_depth=="10-30 cm"]),
+            soc_0to100 = sum(soc))
+
+esm_standard_totals_longer <- esm_standard_totals %>%
+  pivot_longer(cols=soc_0to10:soc_0to100,
+               names_to = c(".value", "depth"),
+               names_sep="_") %>%
+  mutate(label=factor(label, levels=c("BAU", "SHM", "Ref")),
+         depth=factor(depth, levels=c("0to10", "0to30", "0to100")))
+```
+
+Plot SOC stock totals via different methods and depth increments for each project:
+
+```{r boxplots of SOC stock totals, different methods and depths}
+stock_totals_plots <- purrr::map(.x = projects,
+                                 .f = ~{
+                                   esm_standard_totals_longer %>%
+                                     filter(project==.x) %>%
+                                     ggplot(aes(x=label, y=soc, fill=ref_stat)) +
+                                     geom_boxplot() +
+                                     facet_grid(depth ~ method, scales="free_y") +
+                                     scale_fill_paletteer_d("nationalparkcolors::Arches", name="Reference Mass") +
+                                     labs(title=glue::glue("Comparison of ESM Methods for \nCalcuating SOC Stock Totals - ", .x),
+                                          y = "SOC Stock (Mg/ha)",
+                                          x ="Management") +
+                                     theme_classic() +
+                                     theme(plot.title=element_text(hjust=0.5))
+
+                                 })
+
+stock_totals_plots
+```
+
+What we can tell from looking at the boxplots:
+
+-   For most projects, using an ESM method (either ESM1 or ESM2) seems to yield a different SOC stock total than using fixed depth methods
+
+-   ESM1 and ESM2 stocks do not appear different
+
+-   It does seem to matter which reference mass is used - using the maximum reference mass tends to yield a higher SOC estimate than using the minimum (which makes sense mathematically)
+
+-   The differences between methods seem muted when more depth is accounted for. There seem to be bigger differences between methods for 0-10 cm stocks than for 0-100 cm stocks
+
+-   Using the minimum reference mass seems to minimize the spread of the ESM2 stock data (though that may just reflect the fact that the numbers are smaller using ESM2 and a smaller reference mass)
+
+## Test effect of ESM calculation method on total SOC stocks via linear mixed models
+
+```{r lme for effect of overall method on SOC stocks}
+# Fixed effect is calculation method, random effect is project and label (to account for variation in SOC stocks by project and management)
+
+# For 0-10 cm stocks
+esm_std_0to10_lmer <- lmer(soc_0to10 ~ method_long + (1|project/label), data = esm_standard_totals)
+summary(esm_std_0to10_lmer)
+plot(esm_std_0to10_lmer)
+qqnorm(resid(esm_std_0to10_lmer))
+qqline(resid(esm_std_0to10_lmer))
+
+# Is method significant overall?
+drop1(lmer(soc_0to10 ~ method_long + (1|project/label), data = esm_standard_totals, REML=FALSE), test = "Chisq")
+
+# For 0-30 cm stocks
+esm_std_0to30_lmer <- lmer(soc_0to30 ~ method_long + (1|project/label), data = esm_standard_totals)
+summary(esm_std_0to30_lmer)
+plot(esm_std_0to30_lmer)
+qqnorm(resid(esm_std_0to30_lmer))
+qqline(resid(esm_std_0to30_lmer))
+
+# Is method significant overall?
+drop1(lmer(soc_0to30 ~ method_long + (1|project/label), data = esm_standard_totals, REML=FALSE), test = "Chisq")
+
+esm_std_0to100_lmer <- lmer(soc_0to100 ~ method_long + (1|project/label), data = esm_standard_totals)
+summary(esm_std_0to100_lmer)
+plot(esm_std_0to100_lmer)
+qqnorm(resid(esm_std_0to100_lmer))
+qqline(resid(esm_std_0to100_lmer))
+
+# Is method significant overall?
+drop1(lmer(soc_0to100 ~ method_long + (1|project/label), data = esm_standard_totals, REML=FALSE), test = "Chisq")
+```
+
+Method has a significant effect on 0-10 cm and 0-30 cm SOC stocks, but not on 0-100 cm SOC stocks. 
+
+Now that we know method of calculation matters (which we suspected before!) for 0-10 cm and 0-30 cm SOC stocks, we can test if the style of ESM (classic vs cubic spline) matters more than the reference mass chosen:
+
+```{r lme testing esm method vs reference stat}
+esm_standard_totals_no_fd <- esm_standard_totals %>%
+  filter(method!="fd")
+
+# 0 to 10 cm
+# Fit model
+esm_std_0to10_no_fd_lmer <- lmer(soc_0to10 ~ method + ref_stat + (1|project/label), data = esm_standard_totals_no_fd)
+summary(esm_std_0to10_no_fd_lmer)
+
+# test significance of fixed effects
+drop1(lmer(soc_0to10 ~ method + ref_stat + (1|project/label), data = esm_standard_totals_no_fd, REML=FALSE), test = "Chisq")
+
+# 0-30 cm depth
+esm_std_0to30_no_fd_lmer <- lmer(soc_0to30 ~ method + ref_stat + (1|project/label), data = esm_standard_totals_no_fd)
+summary(esm_std_0to30_no_fd_lmer)
+
+# test significance of fixed effects
+drop1(lmer(soc_0to30 ~ method + ref_stat + (1|project/label), data = esm_standard_totals_no_fd, REML=FALSE), test = "Chisq")
+```
+
+For both the 0-10 cm and 0-30 cm SOC stocks, we find no significant effect of classic vs. cubic spline, but a significant effect of which reference statistic is chosen. This makes sense - the reference mass chosen should affect the calculated SOC stocks. 
+
+## How does choice in reference statistic influence error?
+
+Since we don't know the "true" SOC stock, it's hard to know which reference statistic is the correct one to pick. One way to make this decision could be to select the reference statistic that reduces the spread of the calculated SOC stocks. Visually this appears to be the minimum mass (and that would make sense mathematically), but we can verify.
+
+```{r calculate sd and cv for different reference statistic methods}
+# Only look at ESM2 data
+esm2_std_totals <- esm_standard_totals_longer %>%
+  filter(method=="esm2")
+
+# Make one version grouped by project and treatment
+esm2_std_totals_error_byproj <- esm2_std_totals %>%
+  group_by(project, label, depth, ref_stat) %>%
+  summarize(across(soc, sd_cv)) 
+flextable(esm2_std_totals_error_byproj)
+
+# Calculate mean CV - does this even make sense??
+flextable(esm2_std_totals_error_byproj %>%
+  ungroup() %>%
+  group_by(depth, ref_stat) %>%
+  summarize(mean_cv = mean(soc_cv, na.rm=TRUE)))
+
+# Make one version with no grouping
+esm2_std_totals_error <- esm2_std_totals %>%
+  group_by(depth, ref_stat) %>%
+  summarize(across(soc, sd_cv)) 
+flextable(esm2_std_totals_error)
+```
+
+Error seems comparable between reference stat methods - the mean within-group (project/management) coefficient of variability is essentially the same for all methods in the 0-10 cm and 0-30 cm depths. Using the minimum reference mass reduces the CV for the 0-100 cm depth - maybe because it requires the least amount of extrapolation?
+
+I think that these results show that it is defensible to pick whatever ESM method makes sense - and using the minimum reference mass is a good idea, especially if you want to use deep cores - then you're not extrapolating to depths you haven't collected data from. Total SOC stocks to 100 cm are not significantly different when calculated using ESM vs. fixed depth methods.
+
+# How does ESM method choice influence within-layer error?
+
+## Influence of ESM method on soil depths used for calculations
+
+One way to think about this is how the different ESM method choices influence the actual soil depths used to calculate the ESM SOC stocks for each depth increment. Method choices that result in extrapolation should probably be avoided.
+
+Plot the actual depths used for ESM cubic spline calculations for all projects:
+```{r boxplot of actual soil depths used to calculated ESM depths}
+purrr::map(.x = projects,
+           .f = ~{
+             esm_standard %>%
+               filter(project==.x, method=="esm2") %>%
+               ggplot(aes(x=ref_stat, y=depth, fill=ref_stat)) +
+               geom_boxplot() +
+               facet_wrap(~layer, scales="free_y", labeller=labeller(layer=std_depth_labels)) +
+               labs(x="Reference Mass",
+                    y="Actual depth used for ESM calculations", 
+                    title=glue::glue("Influence of Reference Mass on Soil Depths Used \nfor ESM Cubic Spline Calculations - ", .x)) +
+               scale_fill_paletteer_d("nationalparkcolors::Arches") +
+               theme_classic() +
+               theme(plot.title=element_text(hjust=0.5),
+                     legend.position="none")
+           })
+```
+
+## Influence of depth increments used for ESM on total SOC stocks
+
+```{r boxplot comparing 0-10 cm and 0-100 cm SOC stocks for genetic horizons and standard depths}
+purrr::map(.x = projects, .f= ~{
+  ggplot(esm_gen_std_totals %>% filter(project == .x, depth!="0to30"), 
+         aes(x=method_long, y=soc, fill=depth_increments)) +
+    geom_boxplot() +
+    facet_wrap(~depth, scales="free_y") +
+    labs(x="SOC stock calculation method",
+         y="SOC Stock (Mg/ha)",
+         title=glue::glue("Influence of depth increment selection on \nSOC stock calculation - ", .x)) +
+    scale_fill_paletteer_d("nationalparkcolors::Arches", name="Depth Increments") +
+    theme_classic() +
+    theme(plot.title=element_text(hjust=0.5),
+          axis.text.x=element_text(angle=45, hjust=1))
+})
+```
+
+Depth increment selection does NOT alter calculated SOC stocks - this is expected (it's the same data, after all!), but is just a good check that we aren't creating crazy errors by re-jiggering the data into standard depth increments. Huzzah!
+
+## Influence of depth increments used on within-layer error
+
+Another thing to check is that re-configuring the soil data into standard depth increments doesn't introduce additional error into the within-layer SOC stock calculations. We can check this by comparing the within-layer error for genetic horizon vs. standard depth increments calculations.
+
+Calculate and plot within-layer coefficient of variation for each project/management group, using different SOC stock calculation methods and depth increments:
+
+```{r calculate and plot within-layer CV}
+# calculate CV for each layer within each project/management group
+depth_comp_error <- esm_all %>%
+  group_by(project, label, method_long, depth_increments, layer) %>%
+  summarize(layer_cv = round(((sd(soc, na.rm=TRUE) / mean(soc, na.rm=TRUE))* 100), 2))
+
+# Plot CVs
+ggplot(depth_comp_error, aes(y=layer_cv, x=method_long, fill=depth_increments)) +
+  geom_boxplot() +
+  facet_grid(project~layer, scales="free_y") +
+  labs(x="SOC stock calculation method", y="Layer Coefficient of Variation") +
+  scale_fill_paletteer_d("nationalparkcolors::Arches", name="Depth Increments") +
+  theme_classic()
+```
+
+This figure is small and hard to interpret but overall I am pretty sure it shows that the within-layer CVs are pretty much the same whether SOC stocks are calculated on a standard depth increments basis or a genetic horizon basis.
+
+Try pulling out just one project to be able to see better:
+
+```{r plot CV vs. calculation method and depth increment for Illinois project only}
+ggplot(depth_comp_error %>% filter(project=="Illinois"), aes(y=layer_cv, x=method_long, fill=depth_increments)) +
+  geom_boxplot() +
+  facet_wrap(~layer, scales="free_y") +
+  labs(x="SOC stock calculation method", y="Layer Coefficient of Variation", title="Illinois") +
+  scale_fill_paletteer_d("nationalparkcolors::Arches", name="Depth Increments") +
+  theme_classic() +
+  theme(axis.text.x=element_text(angle=45, hjust=1))
+```
+
+Perhaps there is slightly greater error in the ESM2 method vs ESM1 method, especially in greater depths. We can better explore patterns in CV using a linear mixed model.
+
+```{r lme for within-layer cv vs calculation method and depth increment}
+depth_comp_lmer <- lmer(layer_cv ~ method_long + depth_increments + (1|project/label/layer), data = depth_comp_error)
+summary(depth_comp_lmer)
+plot(depth_comp_lmer)
+qqnorm(resid(depth_comp_lmer))
+qqline(resid(depth_comp_lmer))
+
+# Is method or depth increment significant overall?
+drop1(lmer(layer_cv ~ method_long + depth_increments + (1|project/label/layer), data = depth_comp_error, REML=FALSE), test = "Chisq")
+
+# should be able to figure out which method results in least within-layer error????
+summary(glht(depth_comp_lmer, linfct = mcp(method_long = 'Tukey')))
+
+# Plot predictions of within-layer error for each method
+depth_comp_pred <- ggpredict(depth_comp_lmer, terms = c("method_long"))
+
+ggplot(depth_comp_pred , aes(x=x, y=predicted)) +
+  geom_point() +
+  geom_errorbar(aes(x=x, ymin=conf.low, ymax=conf.high)) +
+  labs(x="SOC stock calculation method", y="Predicted within-layer CV") +
+  theme_classic()
+```
+
+Calculation method (ESM vs FD, and choice in reference soil) significantly influences within-layer error, but depth increment choice does not. Interestingly, there seems to be smaller error with ESM1 and fixed depth calculation methods. The highest error is ESM2 with the maximum mass reference soil. 
+
+# How does ESM method choice influence between-group differences?
