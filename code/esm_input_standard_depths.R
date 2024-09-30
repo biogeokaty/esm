@@ -1,4 +1,4 @@
-# Calculating reference soil masses for standard depth increments
+# Calculating reference soil masses for standard depth increments with reference masses calculated separately for each DSP4SH project
 
 # Setup ----
 
@@ -18,51 +18,30 @@ soc_horizon <- read.csv(here("data_processed", "04_soc_stock_horizon.csv"))
 # Functions
 source(here("code","esm_functions.R"))
 
-# Slow way - Input data for mass aggregation function ----
-# Filter to get the data for the project that you want
-project_data <- soc_horizon %>%
-  filter(project=="project_name_here")
+# Clean data ----
+# Filter out UTRGV and Texas A&M Pt2 data, and any pedons with missing bulk density or SOC 
+soc_horizon_filt1 <- soc_horizon %>%
+  filter(project!="UTRGV", project!="TexasA&MPt-2") %>% # filter out the projects that are missing data
+  group_by(dsp_pedon_id) %>%
+  filter(!any(is.na(soc_fill))) %>% # filter out projects missing SOC
+  filter(!any(is.na(bd_fill)))  # filter out projects missing BD
 
-# Make vector of desired horizon depths
-depth_list <- c(10,30,50,75,100)
+# Filter out pedons with max depth < 100 cm 
+shallow <- soc_horizon_filt1 %>%
+  group_by(dsp_pedon_id) %>%
+  filter(hrzdep_b == max(hrzdep_b)) %>%
+  filter(hrzdep_b < 100) %>%
+  distinct(dsp_pedon_id) %>%
+  pull()
 
-# Slow way - Calculate aggregated soil masses and save output ----
-mass_agg <- soil_mass_aggregate(project_data, depth_list)
-## Use these data to fill in your Reference soil mass sheet for the SimpleESM input spreadsheet! ##
+soc_horizon_filt <- soc_horizon_filt1 %>%
+  filter(!dsp_pedon_id %in% shallow) %>%
+  ungroup()
 
-# Calculate fixed depth SOC stocks with increments that mirror ESM depth increments ---
-soc_agg <- soc_stock_fd(project_data, depth_list)
+# Generate input spreadsheets for SimpleESM ----
 
-# Slow way - Join ESM calculations and fixed depth calculations into one dataframe ----
-# Read in ESM data, add a "sample_id" column for easy joining
-esm1 <- read.csv("path_to_ESM1_output_file_goes_here.csv", sep = ";") %>%
-  unite("sample_id", Point:Layer, sep="-", remove=FALSE)
-esm2 <- read.csv("path_to_ESM2_output_file_goes_here.csv", sep = ";") %>%
-  unite("sample_id", Point:Layer, sep="-", remove=FALSE)
-
-# Join into one dataframe
-soc_join <- esm1 %>%
-  select(Campaign, Treatment, Point, sample_id, Layer, Lower_cm, SOC_stock_ESM) %>%
-  rename(project = Campaign,
-         label=Treatment,
-         dsp_pedon_id = Point,
-         depth_esm1 = Lower_cm,
-         soc_esm1 = SOC_stock_ESM) %>%
-  left_join(select(esm2,sample_id, Lower_cm, SOC_stock_ESM2), by="sample_id") %>%
-  rename(soc_esm2 = SOC_stock_ESM2,
-         depth_esm2 = Lower_cm) %>%
-  left_join(soc_agg, by=c("sample_id", "dsp_pedon_id")) %>%
-  select(-layer) %>%
-  pivot_longer(cols = depth_esm1:depth_fd,
-               names_to = c(".value", "method"),
-               names_sep="_"
-  ) %>%
-  rename(soc_stock_calc = soc)
-
-# Fast way - generating input spreadsheets for SimpleESM automatically ----
-# Requires some fun with nested dataframes
 # First, nest the soil horizon data by project
-nested <- soc_horizon %>%
+nested <- soc_horizon_filt %>%
   group_by(project) %>%
   mutate(project_copy = project) %>%
   nest()
@@ -74,8 +53,8 @@ project_list <- nested %>%
 # Make nested dataframe with the desired depths
 depth_df <- data.frame(
   project = project_list,
-  top = rep(c(0,10,30,50,75), each=10),
-  bottom = rep(c(10,30,50,75,100), each=10)
+  top = rep(c(0,10,30,50,75), each=8),
+  bottom = rep(c(10,30,50,75,100), each=8)
 ) %>%
   arrange(project) %>%
   group_by(project) %>%
@@ -89,7 +68,6 @@ join <- nest_join(nested, depth_df, by="project") %>%
 
 # Run mass aggregation function to get masses for each project
 ref_mass_df <- join %>%
-  filter(project!="UTRGV", project!="TexasA&MPt-2") %>%
   mutate(ref_mass = purrr::map2(.x = data, .y = depth_list, .f = soil_mass_aggregate)) %>%
   unnest(cols=c(depths, ref_mass)) %>%
   select(project, data, top, bottom, mass_agg_min, mass_agg_max, mass_agg_mean) %>%
@@ -101,13 +79,6 @@ ref_mass_df <- join %>%
 # Make the input sheets - grouped by project and summary stat for reference soil mass - each group will have a dataframe for SOC concentrations, BD, and reference soil mass
 esm_input <- ref_mass_df %>%
   select(project, data, ref_mass) %>%
-  # Filter out any pedons with NA values for SOC fill or BD fill (these will trip up the ESM script)
-  mutate(data = purrr::map(data, .f = ~{
-    .x %>%
-      group_by(dsp_pedon_id) %>%
-      filter(!any(is.na(soc_fill))) %>%
-      filter(!any(is.na(bd_fill)))
-  })) %>%
   mutate(ref_mass_longer = purrr::map(ref_mass, ~pivot_longer(.x,
                                                               cols=c(mass_agg_min:mass_agg_mean),
                                                               names_to="stat",
@@ -158,6 +129,8 @@ project_stat <- esm_input %>% distinct(project, stat)
 project_list <- project_stat %>% pull(project) %>% as.character
 stat_list <- project_stat %>% pull(stat) %>% as.character
 
+dir.create(here("data_processed", "esm_input_standard"))
+
 map2(.x = project_list,
      .y = stat_list,
      .f = ~{
@@ -182,10 +155,10 @@ map2(.x = project_list,
        write_xlsx(list("Concentrations" = conc,
                        "BD" = bd,
                        "Ref_soil_mass" = mass),
-                  here("data_processed", "esm_input_test", glue::glue(.x, "_", .y, ".xlsx")))
+                  here("data_processed", "esm_input_standard", glue::glue(.x, "_", .y, ".xlsx")))
      })
 
-# Fast way - Run SimpleESM function iteratively for all input spreadsheets ----
+# Run SimpleESM function iteratively for all input spreadsheets ----
 # Set universal options (these will not change with each input, so we can assign them outside of the map() function)
 
 # Option for the reference soil mass ("manual" or "auto")
@@ -198,7 +171,7 @@ E_calc_option <- "SOC_only"
 I_calc_option <- "no"
 
 # Create the big folder for the output
-dir.create(here("data_processed", "esm_output"))
+dir.create(here("data_processed", "esm_output_standard"))
 
 # Load the SimpleESM function
 source(here("code","SimpleESM_function.R"))
@@ -210,11 +183,11 @@ map2(.x = project_list,
      .f = ~{
        
        # Name of the input .xlsx file
-       input_file_name <- here("data_processed", "esm_input_test", 
+       input_file_name <- here("data_processed", "esm_input_standard", 
                                glue::glue(.x, "_", .y, ".xlsx"))
        
        # Name of the output directory
-       output_directory_name <- here("data_processed", "esm_output", glue::glue(.x, "_", .y))
+       output_directory_name <- here("data_processed", "esm_output_standard", glue::glue(.x, "_", .y))
        
        # Create output directory for each project/stat combo
        dir.create(output_directory_name)
@@ -228,12 +201,12 @@ map2(.x = project_list,
 # Ignore the FD output because it calculates based on actual fixed depth. We will re-calculate fixed depth SOC stocks for our desired depth increments manually
 
 # Make a list of the ESM1 output files
-esm1_files <- list.files(here("data_processed", "esm_output"), pattern = "ESM\\.csv$", recursive=TRUE, full.names=TRUE)
-esm1_files_short <- list.files(here("data_processed", "esm_output"), pattern = "ESM\\.csv$", recursive=TRUE)
+esm1_files <- list.files(here("data_processed", "esm_output_standard"), pattern = "ESM\\.csv$", recursive=TRUE, full.names=TRUE)
+esm1_files_short <- list.files(here("data_processed", "esm_output_standard"), pattern = "ESM\\.csv$", recursive=TRUE)
 
 # Make a list of the ESM2 output files
-esm2_files <- list.files(here("data_processed", "esm_output"), pattern = "ESM2\\.csv$", recursive=TRUE, full.names=TRUE)
-esm2_files_short <- list.files(here("data_processed", "esm_output"), pattern = "ESM2\\.csv$", recursive=TRUE)
+esm2_files <- list.files(here("data_processed", "esm_output_standard"), pattern = "ESM2\\.csv$", recursive=TRUE, full.names=TRUE)
+esm2_files_short <- list.files(here("data_processed", "esm_output_standard"), pattern = "ESM2\\.csv$", recursive=TRUE)
 
 # Read in files and name each one so we can tell them apart
 esm1_data <- lapply(esm1_files, read.csv, sep = ";")
@@ -278,8 +251,7 @@ esm2_df <- do.call(rbind.data.frame, esm2_data) %>%
          layer = Layer)
 
 # Calculate fixed depth SOC stocks for all projects to join in
-soc_agg_df <- join_df %>%
-  filter(project!="UTRGV") %>% # filter out UTRGV project where only shallow soils were collected/analyzed - they mess with the rest of the code
+soc_agg_df <- join %>%
   mutate(soc_agg = purrr::map2(data, depth_list, soc_stock_fd)) %>%
   select(project, soc_agg) %>%
   unnest(cols=c(soc_agg)) %>%
@@ -301,7 +273,11 @@ esm_join_long <- esm_join %>%
          actual_depth = case_when(layer==1 ~ glue::glue("0{round(depth, 1)} cm"),
                                   layer > 1 ~ glue::glue("{-round(topdepth, 1)}{round(depth,1)} cm"))) %>%
   group_by(project, layer) %>%
-  fill(apparent_depth, .direction="up")
+  fill(apparent_depth, .direction="up") %>%
+  mutate(ref_stat =  case_when(method== "fd" ~ "fd",
+                               method!="fd" ~ ref_stat)) %>%
+  group_by_all() %>%
+  distinct()
 
 # Write csv
 write_csv(esm_join_long, here("data_processed", "esm_standard_depths.csv"))

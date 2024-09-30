@@ -22,16 +22,30 @@ source(here("code","esm_functions.R"))
 # Calculate min, mean, and max soil mass in 0-10 cm, 10-30 cm, 30-50 cm, 50-75 cm, and 75-10 cm depths 
 depths <- c(10,30,50,75,100)
 
-soc_horizon_filt <- soc_horizon %>%
-  filter(project!="UTRGV", project!="TexasA&MPt-2") # filter out the projects that are missing data
- 
+# Clean data 
+# Filter out UTRGV and Texas A&M Pt2 data, and any pedons with missing bulk density or SOC 
+soc_horizon_filt1 <- soc_horizon %>%
+  filter(project!="UTRGV", project!="TexasA&MPt-2") %>% # filter out the projects that are missing data
+  group_by(dsp_pedon_id) %>%
+  filter(!any(is.na(soc_fill))) %>% # filter out projects missing SOC
+  filter(!any(is.na(bd_fill)))  # filter out projects missing BD
+
+# Filter out pedons with max depth < 100 cm 
+shallow <- soc_horizon_filt1 %>%
+  group_by(dsp_pedon_id) %>%
+  filter(hrzdep_b == max(hrzdep_b)) %>%
+  filter(hrzdep_b < 100) %>%
+  distinct(dsp_pedon_id) %>%
+  pull()
+
+soc_horizon_filt <- soc_horizon_filt1 %>%
+  filter(!dsp_pedon_id %in% shallow) %>%
+  ungroup()
+  
 ref_mass <- soil_mass_aggregate(soc_horizon_filt, depths)
 
 # Build SOC and BD input dataframes ----
 esm_input_soc <- soc_horizon_filt %>%
-  group_by(dsp_pedon_id) %>%
-  filter(!any(is.na(soc_fill))) %>%
-  filter(!any(is.na(bd_fill))) %>%
   select(project, label, dsp_plot_id, dsp_pedon_id, hrzdep_t, hrzdep_b, soc_fill) %>%
   rename("Campaign" = "project",
          "Treatment" = "label",
@@ -220,4 +234,4 @@ esm_join_long <- esm_join %>%
   distinct()
 
 # Write csv
-write_csv(esm_join_long, here("data_processed", "esm_standard_depths.csv"))
+write_csv(esm_join_long, here("data_processed", "esm_same_ref_mass.csv"))
