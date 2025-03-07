@@ -2,7 +2,9 @@
 title: "esm_manuscript"
 author: "Katy Dynarski"
 date: "`r Sys.Date()`"
-output: html_document
+output: 
+  html_document: 
+    keep_md: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -20,6 +22,7 @@ library(rms)
 library(aqp)
 library(cowplot)
 library(lme4)
+library(lmerTest)
 library(broom.mixed)
 library(multcomp)
 library(ggeffects)
@@ -144,7 +147,6 @@ esm_stock_compare_longer <- esm_stock_compare %>%
 Plot total SOC stocks calculated using each method:
 
 ```{r Figure S2 - boxplot comparing total SOC stocks for all different methods}
-
 ggplot(esm_stock_compare_longer,
        aes(x=method_long, y=soc, fill=ref_data)) +
   geom_boxplot() +
@@ -163,7 +165,6 @@ ggplot(esm_stock_compare_longer,
 
 ggsave(here("figs", "ms_figs", "suppfig2_all_soc_stock_totals.png"),
        width=7.75, height=6.5, dpi=400)
-
 ```
 Make version for each project:
 
@@ -216,7 +217,6 @@ soc_stocks_all <- purrr::map(.x = projects,
 Alternate version with Washington State and Texas A&M (sites with highest and lowest bulk density:
 
 ```{r Figure 2 - Washington State and TAM}
-
 soc_stocks_all[[5]] / soc_stocks_all[[8]] + plot_layout(axes="collect", guides="collect")
 
 ggsave(here("figs", "ms_figs", "fig2_soc_stock_totals_wsu_tam1.pdf"),
@@ -226,7 +226,6 @@ ggsave(here("figs", "ms_figs", "fig2_soc_stock_totals_wsu_tam1.pdf"),
 Also want to know what is the difference between the smallest and largest SOC stocks calculated for a particular pedon using these different methods?
 
 ```{r difference in soc stocks}
-
 stock_diff <- esm_stock_compare_longer %>%
   group_by(project, label, dsp_pedon_id, depth) %>%
   summarize(min_soc_stock = min(soc),
@@ -250,7 +249,6 @@ mean_diff <- stock_diff %>%
             max_diff_soc_stock = max(diff))
 
 flextable(mean_diff)
-  
 ```
 
 ## Effect of overall method
@@ -408,7 +406,6 @@ Reference summary statistic choice does drive significant differences in SOC sto
 ## Depth of data used
 
 ```{r comparison of depths for just cubic spline}
-
 esm_all_depth_plot <- esm_all_clean %>%
   mutate(apparent_depth = str_remove(apparent_depth, " cm")) %>%
   separate_wider_delim(apparent_depth, delim="-", names=c("apparent_top_depth", "apparent_bottom_depth")) %>%
@@ -478,7 +475,6 @@ ggsave(here("figs", "ms_figs", "suppfig9_depth_plot.png"),
 Plot with just Washington State and TAM for manuscript:
 
 ```{r Figure 3 - influence of reference mass data source on soil depths used - Wash and TAM projects only}
-
 depth_plots_all[[5]] / depth_plots_all[[8]] + plot_layout(axes="collect", guides="collect")
 
 ggsave(here("figs", "ms_figs", "fig3_depth_plots_wsu_tam1.pdf"),
@@ -511,23 +507,24 @@ esm_group_comp <- esm_stock_compare_longer %>%
   tidy_drop = purrr::map(drop1, broom.mixed::tidy)) 
 
 # Extract table of F-values and p-values for each method
-mgmt_lmer_table <- esm_group_comp %>%
-  select(method_longest, method_long, ref_data, depth, tidy_lmer, tidy_drop) %>%
-  unnest(cols=c(tidy_lmer, tidy_drop), names_sep="_") %>%
+mgmt_drop_table <- esm_group_comp %>%
+  select(method_longest, method_long, ref_data, depth, tidy_drop) %>%
+  unnest(cols=c(tidy_drop), names_sep="_") %>%
   mutate(sig = case_when(tidy_drop_p.value < 0.05 ~ "significant",
                          tidy_drop_p.value > 0.05 ~ "not_significant")) %>%
   select(method_longest, depth, tidy_drop_statistic, tidy_drop_p.value, sig) %>%
   distinct() %>%
   mutate(across(where(is.numeric), ~round(.x, 2)))
 
-flextable(mgmt_lmer_table)
-write_csv(mgmt_lmer_table, here("figs", "ms_figs", "method_mgmt_lmer.csv"))
+flextable(mgmt_drop_table)
+write_csv(mgmt_drop_table, here("figs", "ms_figs", "method_mgmt_drop.csv"))
 
 # Extract significantly different management groups for each method
 mgmt_cld_table <- esm_group_comp %>%
   select(method_longest, method_long, ref_data, depth, letters) %>%
   unnest(cols=c(letters))
 
+flextable(mgmt_cld_table)
 write_csv(mgmt_cld_table, here("figs", "ms_figs", "method_mgmt_cld.csv"))
 ```
 
@@ -536,11 +533,10 @@ All methods detect significant between-group differences in all depths (0-10 cm,
 Make plots showing SOC stocks by management treatment:
 
 ```{r Figure S16 - management impacts all data}
-
 # figure with all data, no separation by project
 ggplot(esm_stock_compare_longer, aes(x=method_longest, y=soc, fill=label)) +
   geom_boxplot() +
-  facet_grid(ref_data~depth, scales="free", labeller=labeller(depth=stock_depth_labels)) +
+  facet_wrap(~depth, scales="free_y", labeller=labeller(depth=stock_depth_labels)) +
   scale_x_discrete(labels=method_labels) +
   scale_fill_manual(values=c("#FED789FF","#72874EFF","#476F84FF"),
                      breaks=c("BAU", "SHM", "Ref"), 
@@ -553,7 +549,6 @@ ggsave(here("figs", "ms_figs", "fig4_stock_mgmt.png"),
 ```
 
 ```{r figure 4 - soc stocks by management with WashState and TAM data}
-
 # Save figures for supplement
 purrr::map(.x = projects,
            .f = ~{
@@ -597,7 +592,6 @@ stock_mgmt_plots[[5]] / stock_mgmt_plots[[8]] + plot_layout(axes="collect", guid
 
 ggsave(here("figs", "ms_figs", "fig4_soc_mgmt_wsu_tam1.pdf"),
        width=150, height=150, unit="mm", dpi=1000)
-
 ```
 
 # Misc analyses and figures for supplement
@@ -751,7 +745,6 @@ summary(depth_comp_lmer)
 
 # Is method or reference data source significant overall?
 drop1(lmer(layer_cv ~ method_long + ref_data + (1|project/label/layer), data = depth_comp_error, REML=FALSE), test = "Chisq")
-
 ```
 
 Neither ESM method nor reference data source significantly influence within-layer CV.

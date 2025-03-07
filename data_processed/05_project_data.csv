@@ -1,0 +1,277 @@
+dsp_pedon_id,dsp_plot_id,label_full,label,lu,till,trt,project,soil,site,pedon_x,pedon_y,map,mat,climate
+KeC1-1,KeC1,BAU,BAU,CROP,Till,Till with rotation (eco-fallow),KansasState,Keith,NA,-100.557271,39.244626,549.925964355469,11.2898998260498,cool_dry
+KeC1-2,KeC1,BAU,BAU,CROP,Till,Till with rotation (eco-fallow),KansasState,Keith,NA,-100.557271,39.244626,549.925964355469,11.2898998260498,cool_dry
+KeC1-3,KeC1,BAU,BAU,CROP,Till,Till with rotation (eco-fallow),KansasState,Keith,NA,-100.557271,39.244626,549.925964355469,11.2898998260498,cool_dry
+KeC2-1,KeC2,BAU,BAU,CROP,Till,Tilled once every 3 years.  Sorghum/wheat/corn,KansasState,Keith,NA,-101.0631493,39.3817794,521.028015136719,11.0500001907349,cool_dry
+KeC2-2,KeC2,BAU,BAU,CROP,Till,Tilled once every 3 years.  Sorghum/wheat/corn,KansasState,Keith,NA,-101.0632519,39.3815262,521.028015136719,11.0500001907349,cool_dry
+KeC2-3,KeC2,BAU,BAU,CROP,Till,Tilled once every 3 years.  Sorghum/wheat/corn,KansasState,Keith,NA,-101.0629297,39.3816973,521.028015136719,11.0500001907349,cool_dry
+KeC3-1,KeC3,BAU,BAU,CROP,Till,Till converting to no-till,KansasState,Keith,NA,-100.868944,39.978288,533.513977050781,10.9399995803833,cool_dry
+KeC3-2,KeC3,BAU,BAU,CROP,Till,Till converting to no-till,KansasState,Keith,NA,-100.868986,39.978452,533.513977050781,10.9399995803833,cool_dry
+KeC3-3,KeC3,BAU,BAU,CROP,Till,Till converting to no-till,KansasState,Keith,NA,-100.8687585,39.9783659,533.513977050781,10.9399995803833,cool_dry
+KeCF1-1,KeCF1,SHM - no-till,SHM,CROP,No-till,"No-Till  with cover crop -  corn, oats, or wheat.",KansasState,Keith,NA,-100.5431538,39.2447359,551.463012695312,11.3099994659424,cool_dry
+KeCF1-2,KeCF1,SHM - no-till,SHM,CROP,No-till,"No-Till  with cover crop -  corn, oats, or wheat.",KansasState,Keith,NA,-100.5430643,39.2450134,551.463012695312,11.3099994659424,cool_dry
+KeCF1-3,KeCF1,SHM - no-till,SHM,CROP,No-till,"No-Till  with cover crop -  corn, oats, or wheat.",KansasState,Keith,NA,-100.5427146,39.2447102,551.463012695312,11.3099994659424,cool_dry
+KeCF3-1,KeCF3,SHM - no-till,SHM,CROP,No-till,No-till - diverse rotation,KansasState,Keith,NA,-100.89697,39.9519869,533.443969726562,10.9399995803833,cool_dry
+KeCF3-2,KeCF3,SHM - no-till,SHM,CROP,No-till,No-till - diverse rotation,KansasState,Keith,NA,-100.8967806,39.9521612,533.443969726562,10.9399995803833,cool_dry
+KeCF3-3,KeCF3,SHM - no-till,SHM,CROP,No-till,No-till - diverse rotation,KansasState,Keith,NA,-100.8967806,39.9521612,533.443969726562,10.9399995803833,cool_dry
+KeN1-1,KeN1,Ref - Native,Ref,RANGE,Perennial,Native Rangeland (>40 years),KansasState,Keith,NA,-100.56165,39.249205,549.692016601562,11.2898998260498,cool_dry
+KeN1-2,KeN1,Ref - Native,Ref,RANGE,Perennial,Native Rangeland (>40 years),KansasState,Keith,NA,-100.56165,39.249205,549.692016601562,11.2898998260498,cool_dry
+KeN1-3,KeN1,Ref - Native,Ref,RANGE,Perennial,Native Rangeland (>40 years),KansasState,Keith,NA,-100.56165,39.249205,549.692016601562,11.2898998260498,cool_dry
+KeN2-1,KeN2,Ref - Native,Ref,RANGE,Perennial,Native Rangeland - w 1 haying,KansasState,Keith,NA,-101.0636022,39.3843208,521.028015136719,11.0500001907349,cool_dry
+KeN2-2,KeN2,Ref - Native,Ref,RANGE,Perennial,Native Rangeland - w 1 haying,KansasState,Keith,NA,-101.0636425,39.3840397,521.028015136719,11.0500001907349,cool_dry
+KeN2-3,KeN2,Ref - Native,Ref,RANGE,Perennial,Native Rangeland - w 1 haying,KansasState,Keith,NA,-101.063449,39.384217,521.028015136719,11.0500001907349,cool_dry
+KeN3-1,KeN3,Ref - Native,Ref,RANGE,Perennial,Native Rangeland (>80years),KansasState,Keith,NA,-100.8692162,39.9736474,533.513977050781,10.9399995803833,cool_dry
+KeN3-2,KeN3,Ref - Native,Ref,RANGE,Perennial,Native Rangeland (>80years),KansasState,Keith,NA,-100.8692095,39.9739409,533.513977050781,10.9399995803833,cool_dry
+KeN3-3,KeN3,Ref - Native,Ref,RANGE,Perennial,Native Rangeland (>80years),KansasState,Keith,NA,-100.8690184,39.9737363,533.513977050781,10.9399995803833,cool_dry
+CeC1-1,CeC1,BAU,BAU,CROP,Till,wheat - 1,NCState,Cecil,Lake Wheeler,-78.6893,35.73547,1223.27893066406,15.7299995422363,warm_wet
+CeC1-2,CeC1,BAU,BAU,CROP,Till,wheat - 1,NCState,Cecil,Lake Wheeler,-78.68135,35.73571,1223.04284667969,15.789999961853,warm_wet
+CeC1-3,CeC1,BAU,BAU,CROP,Till,wheat - 1,NCState,Cecil,Lake Wheeler,-78.68177,35.73594,1223.04284667969,15.789999961853,warm_wet
+CeC2-1,CeC2,BAU,BAU,CROP,Till,wheat - 2,NCState,Cecil,Lake Wheeler,-78.67495,35.72791,1223.13793945312,15.7299995422363,warm_wet
+CeC2-2,CeC2,BAU,BAU,CROP,Till,wheat - 2,NCState,Cecil,Lake Wheeler,-78.67525,35.72765,1223.13793945312,15.7299995422363,warm_wet
+CeC2-3,CeC2,BAU,BAU,CROP,Till,wheat - 2,NCState,Cecil,Lake Wheeler,-78.67555,35.72739,1223.13793945312,15.7299995422363,warm_wet
+CeC3-1,CeC3,BAU,BAU,CROP,Till,wheat - 3,NCState,Cecil,Lake Wheeler,-78.67194,35.72451,1223.13793945312,15.7299995422363,warm_wet
+CeC3-2,CeC3,BAU,BAU,CROP,Till,wheat - 3,NCState,Cecil,Lake Wheeler,-78.67194,35.72481,1223.13793945312,15.7299995422363,warm_wet
+CeC3-3,CeC3,BAU,BAU,CROP,Till,wheat - 3,NCState,Cecil,Lake Wheeler,-78.67194,35.72511,1223.13793945312,15.7299995422363,warm_wet
+CeF3-1,CeF3,Ref - Forest,Ref,FOREST,Perennial,forest,NCState,Cecil,Lake Wheeler,-78.66969,35.72612,1222.92102050781,15.6899995803833,warm_wet
+CeF3-2,CeF3,Ref - Forest,Ref,FOREST,Perennial,forest,NCState,Cecil,Lake Wheeler,-78.66952,35.72619,1222.92102050781,15.6899995803833,warm_wet
+CeH1-1,CeH1,SHM - forage,SHM,FORAGE,Perennial,hay 1,NCState,Cecil,Lake Wheeler,-78.68048,35.73409,1223.04284667969,15.789999961853,warm_wet
+CeH1-2,CeH1,SHM - forage,SHM,FORAGE,Perennial,hay 1,NCState,Cecil,Lake Wheeler,-78.68042,35.73443,1223.04284667969,15.789999961853,warm_wet
+CeH1-3,CeH1,SHM - forage,SHM,FORAGE,Perennial,hay 1,NCState,Cecil,Lake Wheeler,-78.68036,35.73477,1223.04284667969,15.789999961853,warm_wet
+CeH2-1,CeH2,SHM - forage,SHM,FORAGE,Perennial,hay 2,NCState,Cecil,Lake Wheeler,-78.67504,35.72877,1223.13793945312,15.7299995422363,warm_wet
+CeH2-2,CeH2,SHM - forage,SHM,FORAGE,Perennial,hay 2,NCState,Cecil,Lake Wheeler,-78.67478,35.72871,1223.13793945312,15.7299995422363,warm_wet
+CeH2-3,CeH2,SHM - forage,SHM,FORAGE,Perennial,hay 2,NCState,Cecil,Lake Wheeler,-78.67452,35.72865,1223.13793945312,15.7299995422363,warm_wet
+CeH3-1,CeH3,SHM - forage,SHM,FORAGE,Perennial,hay 3,NCState,Cecil,Lake Wheeler,-78.67191,35.73246,1222.80590820312,15.7399997711182,warm_wet
+CeH3-2,CeH3,SHM - forage,SHM,FORAGE,Perennial,hay 3,NCState,Cecil,Lake Wheeler,-78.67204,35.73285,1222.80590820312,15.7399997711182,warm_wet
+CeH3-3,CeH3,SHM - forage,SHM,FORAGE,Perennial,hay 3,NCState,Cecil,Lake Wheeler,-78.67215,35.73325,1222.80590820312,15.7399997711182,warm_wet
+ASP10-1,ASP10,SHM - no-till,SHM,CROP,No-till,ASP10,WashingtonState,Palouse,JEA,-117.4595977,46.78836813,489.878997802734,9.63000011444092,cool_dry
+ASP10-2,ASP10,SHM - no-till,SHM,CROP,No-till,ASP10,WashingtonState,Palouse,JEA,-117.4595978,46.788368,489.878997802734,9.63000011444092,cool_dry
+ASP10-3,ASP10,SHM - no-till,SHM,CROP,No-till,ASP10,WashingtonState,Palouse,JEA,-117.4595972,46.78836851,489.878997802734,9.63000011444092,cool_dry
+ASP2-1,ASP2,SHM - no-till,SHM,CROP,No-till,ASP2,WashingtonState,Palouse,CK,-117.0822114,46.78188975,567.93701171875,8.61989974975586,cool_dry
+ASP2-2,ASP2,SHM - no-till,SHM,CROP,No-till,ASP2,WashingtonState,Palouse,CK,-117.0822114,46.78188975,567.93701171875,8.61989974975586,cool_dry
+ASP2-3,ASP2,SHM - no-till,SHM,CROP,No-till,ASP2,WashingtonState,Palouse,CK,-117.0822114,46.78188975,567.93701171875,8.61989974975586,cool_dry
+ASP6-1,ASP6,SHM - no-till,SHM,CROP,No-till,ASP6,WashingtonState,Palouse,KU,-117.0822114,46.78188975,567.93701171875,8.61989974975586,cool_dry
+ASP6-2,ASP6,SHM - no-till,SHM,CROP,No-till,ASP6,WashingtonState,Palouse,KU,-117.0822114,46.78188975,567.93701171875,8.61989974975586,cool_dry
+ASP6-3,ASP6,SHM - no-till,SHM,CROP,No-till,ASP6,WashingtonState,Palouse,KU,-117.0822114,46.78188975,567.93701171875,8.61989974975586,cool_dry
+ASP9-1,ASP9,SHM - no-till,SHM,CROP,No-till,ASP9,WashingtonState,Palouse,PCF,-117.2000596,46.75757137,515.658996582031,8.73999977111816,cool_dry
+ASP9-2,ASP9,SHM - no-till,SHM,CROP,No-till,ASP9,WashingtonState,Palouse,PCF,-117.2000596,46.75757137,515.658996582031,8.73999977111816,cool_dry
+ASP9-3,ASP9,SHM - no-till,SHM,CROP,No-till,ASP9,WashingtonState,Palouse,PCF,-117.4236807,46.74504918,493.412994384766,9.5398998260498,cool_dry
+BAU3-1,BAU3,BAU,BAU,CROP,Till,BAU3,WashingtonState,Palouse,KU,-117.0822114,46.78188975,567.93701171875,8.61989974975586,cool_dry
+BAU3-2,BAU3,BAU,BAU,CROP,Till,BAU3,WashingtonState,Palouse,KU,-117.4236809,46.74504916,493.412994384766,9.5398998260498,cool_dry
+BAU3-3,BAU3,BAU,BAU,CROP,Till,BAU3,WashingtonState,Palouse,KU,-117.4236809,46.74504916,493.412994384766,9.5398998260498,cool_dry
+BAU8-1,BAU8,BAU,BAU,CROP,Till,BAU8,WashingtonState,Palouse,LYM,-117.4236809,46.74504916,493.412994384766,9.5398998260498,cool_dry
+BAU8-2,BAU8,BAU,BAU,CROP,Till,BAU8,WashingtonState,Palouse,LYM,-117.4236809,46.74504915,493.412994384766,9.5398998260498,cool_dry
+BAU8-3,BAU8,BAU,BAU,CROP,Till,BAU8,WashingtonState,Palouse,LYM,-117.4236808,46.74504922,493.412994384766,9.5398998260498,cool_dry
+BAU9-1,BAU9,BAU,BAU,CROP,Till,BAU9,WashingtonState,Palouse,CK,-117.0822114,46.78188975,567.93701171875,8.61989974975586,cool_dry
+BAU9-2,BAU9,BAU,BAU,CROP,Till,BAU9,WashingtonState,Palouse,CK,-117.0822114,46.78188975,567.93701171875,8.61989974975586,cool_dry
+BAU9-3,BAU9,BAU,BAU,CROP,Till,BAU9,WashingtonState,Palouse,CK,-117.0822114,46.78188975,567.93701171875,8.61989974975586,cool_dry
+PGL7-7a,PGL7,Ref - CRP,Ref,GRASS,Perennial,PGL7,WashingtonState,Palouse,PCF,-117.1998969,46.75739636,515.658996582031,8.73999977111816,cool_dry
+PGL7-7b,PGL7,Ref - CRP,Ref,GRASS,Perennial,PGL7,WashingtonState,Palouse,PCF,-117.1998969,46.75739636,515.658996582031,8.73999977111816,cool_dry
+PGL7-7c,PGL7,Ref - CRP,Ref,GRASS,Perennial,PGL7,WashingtonState,Palouse,PCF,-117.1998969,46.75739636,515.658996582031,8.73999977111816,cool_dry
+PGL9-1,PGL9,Ref - CRP,Ref,GRASS,Perennial,PGL9,WashingtonState,Palouse,PCF,-117.20006,46.75757146,515.658996582031,8.73999977111816,cool_dry
+PGL9-2,PGL9,Ref - CRP,Ref,GRASS,Perennial,PGL9,WashingtonState,Palouse,PCF,-117.1998969,46.75739636,515.658996582031,8.73999977111816,cool_dry
+PGL9-3,PGL9,Ref - CRP,Ref,GRASS,Perennial,PGL9,WashingtonState,Palouse,PCF,-117.1998969,46.75739636,515.658996582031,8.73999977111816,cool_dry
+ALT-1,ALT,SHM-no till,SHM,CROP,No-till,"No-till (cover crop, no-fertilizer). Soybean. Soybean",UnivOfMinnesota,Marquis,Mower,-92.85464,43.74984,908.956970214844,6.8899998664856,cool_wet
+ALT-2,ALT,SHM-no till,SHM,CROP,No-till,"No-till (cover crop, no-fertilizer). Soybean. Soybean",UnivOfMinnesota,Marquis,Mower,-92.85499,43.74981,908.956970214844,6.8899998664856,cool_wet
+ALT-3,ALT,SHM-no till,SHM,CROP,No-till,"No-till (cover crop, no-fertilizer). Soybean. Soybean",UnivOfMinnesota,Marquis,Mower,-92.85457,43.74953,908.956970214844,6.8899998664856,cool_wet
+ALT-4,ALT,SHM-no till,SHM,CROP,No-till,"No-till (cover crop, no-fertilizer). Soybean. Soybean",UnivOfMinnesota,Marquis,Mower,-92.85453,43.74922,908.956970214844,6.8899998664856,cool_wet
+ALT-5,ALT,SHM-no till,SHM,CROP,No-till,"No-till (cover crop, no-fertilizer). Soybean. Soybean",UnivOfMinnesota,Marquis,Mower,-92.85467,43.74899,908.956970214844,6.8899998664856,cool_wet
+ALT-6,ALT,SHM-no till,SHM,CROP,No-till,"No-till (cover crop, no-fertilizer). Soybean. Soybean",UnivOfMinnesota,Marquis,Mower,-92.85419,43.74893,908.956970214844,6.8899998664856,cool_wet
+ALT-7,ALT,SHM-no till,SHM,CROP,No-till,"No-till (cover crop, no-fertilizer). Soybean. Soybean",UnivOfMinnesota,Marquis,Mower,-92.85348,43.74876,908.841003417969,6.85999965667725,cool_wet
+ALT-8,ALT,SHM-no till,SHM,CROP,No-till,"No-till (cover crop, no-fertilizer). Soybean. Soybean",UnivOfMinnesota,Marquis,Mower,-92.85374,43.74855,908.841003417969,6.85999965667725,cool_wet
+ALT-9,ALT,SHM-no till,SHM,CROP,No-till,"No-till (cover crop, no-fertilizer). Soybean. Soybean",UnivOfMinnesota,Marquis,Mower,-92.85341,43.749,908.841003417969,6.85999965667725,cool_wet
+CON-1,CON,BAU,BAU,CROP,Till,conventional tillage (10cm tillage in Spring; 30cm tillage in fall). Soybean,UnivOfMinnesota,Readlyn,Mower,-92.845294,43.74768,908.68896484375,6.83999967575073,cool_wet
+CON-2,CON,BAU,BAU,CROP,Till,conventional tillage (10cm tillage in Spring; 30cm tillage in fall). Soybean,UnivOfMinnesota,Readlyn,Mower,-92.845601,43.747906,908.68896484375,6.83999967575073,cool_wet
+CON-3,CON,BAU,BAU,CROP,Till,conventional tillage (10cm tillage in Spring; 30cm tillage in fall). Soybean,UnivOfMinnesota,Readlyn,Mower,-92.844985,43.747593,908.68896484375,6.83999967575073,cool_wet
+CON-4,CON,BAU,BAU,CROP,Till,conventional tillage (10cm tillage in Spring; 30cm tillage in fall). Soybean,UnivOfMinnesota,Readlyn,Mower,-92.84107,43.750483,908.68896484375,6.83999967575073,cool_wet
+CON-5,CON,BAU,BAU,CROP,Till,conventional tillage (10cm tillage in Spring; 30cm tillage in fall). Soybean,UnivOfMinnesota,Readlyn,Mower,-92.84134,43.75062,908.68896484375,6.83999967575073,cool_wet
+CON-6,CON,BAU,BAU,CROP,Till,conventional tillage (10cm tillage in Spring; 30cm tillage in fall). Soybean,UnivOfMinnesota,Readlyn,Mower,-92.84078,43.75034,908.68896484375,6.83999967575073,cool_wet
+CON-7,CON,BAU,BAU,CROP,Till,conventional tillage (10cm tillage in Spring; 30cm tillage in fall). Soybean,UnivOfMinnesota,Readlyn,Mower,-92.84329,43.75222,908.68896484375,6.83999967575073,cool_wet
+CON-8,CON,BAU,BAU,CROP,Till,conventional tillage (10cm tillage in Spring; 30cm tillage in fall). Soybean,UnivOfMinnesota,Readlyn,Mower,-92.843677,43.75218,908.68896484375,6.83999967575073,cool_wet
+CON-9,CON,BAU,BAU,CROP,Till,conventional tillage (10cm tillage in Spring; 30cm tillage in fall). Soybean,UnivOfMinnesota,Readlyn,Mower,-92.842882,43.752284,908.68896484375,6.83999967575073,cool_wet
+REF-1,REF,Ref - Native,Ref,RANGE,Perennial,Native rangeland,UnivOfMinnesota,Kenyon,Mower,-92.845067,43.746917,908.68896484375,6.83999967575073,cool_wet
+REF-2,REF,Ref - Native,Ref,RANGE,Perennial,Native rangeland,UnivOfMinnesota,Kenyon,Mower,-92.8454,43.7469,908.68896484375,6.83999967575073,cool_wet
+REF-3,REF,Ref - Native,Ref,RANGE,Perennial,Native rangeland,UnivOfMinnesota,Kenyon,Mower,-92.84465,43.746883,908.68896484375,6.83999967575073,cool_wet
+REF-4,REF,Ref - Native,Ref,RANGE,Perennial,Native rangeland,UnivOfMinnesota,Kenyon,Mower,-92.84395,43.746883,908.68896484375,6.83999967575073,cool_wet
+REF-5,REF,Ref - Native,Ref,RANGE,Perennial,Native rangeland,UnivOfMinnesota,Kenyon,Mower,-92.844333,43.7469,908.68896484375,6.83999967575073,cool_wet
+REF-6,REF,Ref - Native,Ref,RANGE,Perennial,Native rangeland,UnivOfMinnesota,Kenyon,Mower,-92.8436,43.74685,908.68896484375,6.83999967575073,cool_wet
+REF-7,REF,Ref - Native,Ref,RANGE,Perennial,Native rangeland,UnivOfMinnesota,Kenyon,Mower,-92.843,43.74685,908.68896484375,6.83999967575073,cool_wet
+REF-8,REF,Ref - Native,Ref,RANGE,Perennial,Native rangeland,UnivOfMinnesota,Kenyon,Mower,-92.84325,43.7469,908.68896484375,6.83999967575073,cool_wet
+REF-9,REF,Ref - Native,Ref,RANGE,Perennial,Native rangeland,UnivOfMinnesota,Kenyon,Mower,-92.84265,43.746867,908.68896484375,6.83999967575073,cool_wet
+IL-019-SW-ARBRTM-001,IL-019-SW-ARBRTM,Ref - Ref,Ref,FOREST,Perennial,Ref,Illinois,Drummer,Arboretum,-88.216396,40.0916401,1011.82995605469,11.0398998260498,cool_wet
+IL-019-SW-ARBRTM-002,IL-019-SW-ARBRTM,Ref - Ref,Ref,FOREST,Perennial,Ref,Illinois,Drummer,Arboretum,-88.2161899,40.0918033,1011.82995605469,11.0398998260498,cool_wet
+IL-019-SW-ARBRTM-003,IL-019-SW-ARBRTM,Ref - Ref,Ref,FOREST,Perennial,Ref,Illinois,Drummer,Arboretum,-88.2159005,40.0914285,1011.82995605469,11.0398998260498,cool_wet
+IL-019-SW-RTHRML-001,IL-019-SW-RTHRML,SHM - NT,SHM,CROP,No-till,NT,Illinois,Drummer,Rothermel,-88.0238,39.9295,1007.33294677734,11.2299995422363,cool_wet
+IL-019-SW-RTHRML-001A,IL-019-SW-RTHRML,SHM - NT,SHM,CROP,No-till,NT,Illinois,Drummer,Rothermel,-88.0238,39.9295,1007.33294677734,11.2299995422363,cool_wet
+IL-019-SW-RTHRML-002,IL-019-SW-RTHRML,SHM - NT,SHM,CROP,No-till,NT,Illinois,Drummer,Rothermel,-88.0238,39.9295,1007.33294677734,11.2299995422363,cool_wet
+IL-019-SW-RTHRML-003,IL-019-SW-RTHRML,SHM - NT,SHM,CROP,No-till,NT,Illinois,Drummer,Rothermel,-88.0275783,39.9254322,1007.60894775391,11.25,cool_wet
+IL-019-SW-RTHRML-004,IL-019-SW-RTHRML,SHM - NT,SHM,CROP,No-till,NT,Illinois,Drummer,Rothermel,-88.0275783,39.9254322,1007.60894775391,11.25,cool_wet
+IL-019-SW-RTHRML-004A,IL-019-SW-RTHRML,SHM - NT,SHM,CROP,No-till,NT,Illinois,Drummer,Rothermel,-88.027589,39.92541,1007.60894775391,11.25,cool_wet
+IL-115-SW-ETAL-001,IL-115-SW-ETAL,BAU - Organic,BAU,CROP,Till,Organic,Illinois,Drummer,Etal,-88.745608,39.895068,992.936950683594,11.4399995803833,cool_wet
+IL-115-SW-ETAL-001A,IL-115-SW-ETAL,BAU - Organic,BAU,CROP,Till,Organic,Illinois,Drummer,Etal,-88.745608,39.895068,992.936950683594,11.4399995803833,cool_wet
+IL-115-SW-ETAL-002,IL-115-SW-ETAL,BAU - Organic,BAU,CROP,Till,Organic,Illinois,Drummer,Etal,-88.746645,39.895384,992.568969726562,11.460000038147,cool_wet
+IL-115-SW-ETAL-003,IL-115-SW-ETAL,BAU - Organic,BAU,CROP,Till,Organic,Illinois,Drummer,Etal,-88.746587,39.90146,991.560974121094,11.5199995040894,cool_wet
+IL-115-SW-WDFLD-001,IL-115-SW-WDFLD,BAU - Organic,BAU,CROP,Till,Organic,Illinois,Drummer,Woodfield,-88.798131,39.866062,990.943969726562,11.5599994659424,cool_wet
+IL-115-SW-WDFLD-001A,IL-115-SW-WDFLD,BAU - Organic,BAU,CROP,Till,Organic,Illinois,Drummer,Woodfield,-88.798131,39.866062,990.943969726562,11.5599994659424,cool_wet
+IL-115-SW-WDFLD-002,IL-115-SW-WDFLD,BAU - Organic,BAU,CROP,Till,Organic,Illinois,Drummer,Woodfield,-88.799917,39.865395,990.943969726562,11.5599994659424,cool_wet
+IL-115-SW-WDFLD-003,IL-115-SW-WDFLD,BAU - Organic,BAU,CROP,Till,Organic,Illinois,Drummer,Woodfield,-88.798039,39.868482,990.943969726562,11.5599994659424,cool_wet
+IL-147-SW-CRP-001,IL-147-SW-CRP,BAU - Conventional,BAU,CROP,Till,Conventional,Illinois,Drummer,Cripe,-88.743611,39.895694,992.936950683594,11.4399995803833,cool_wet
+IL-147-SW-CRP-001A,IL-147-SW-CRP,BAU - Conventional,BAU,CROP,Till,Conventional,Illinois,Drummer,Cripe,-88.743611,39.895694,992.936950683594,11.4399995803833,cool_wet
+IL-147-SW-CRP-002,IL-147-SW-CRP,BAU - Conventional,BAU,CROP,Till,Conventional,Illinois,Drummer,Cripe,-88.743611,39.896889,991.81396484375,11.5,cool_wet
+IL-147-SW-CRP-003,IL-147-SW-CRP,BAU - Conventional,BAU,CROP,Till,Conventional,Illinois,Drummer,Cripe,-88.743333,39.898194,991.81396484375,11.5,cool_wet
+IL-147-SW-TS-001,IL-147-SW-TS,BAU - Conventional,BAU,CROP,Till,Conventional,Illinois,Drummer,Taylor South,-88.700021,39.876683,997.159973144531,11.5299997329712,cool_wet
+IL-147-SW-TS-002,IL-147-SW-TS,BAU - Conventional,BAU,CROP,Till,Conventional,Illinois,Drummer,Taylor South,-88.700776,39.878541,997.159973144531,11.5299997329712,cool_wet
+IL-147-SW-TS-003,IL-147-SW-TS,BAU - Conventional,BAU,CROP,Till,Conventional,Illinois,Drummer,Taylor South,-88.705988,39.878261,996.758972167969,11.5299997329712,cool_wet
+IL-147-SW-TS-003A,IL-147-SW-TS,BAU - Conventional,BAU,CROP,Till,Conventional,Illinois,Drummer,Taylor South,-88.705988,39.878261,996.758972167969,11.5299997329712,cool_wet
+PaH2-1,PaH2,SHM - Hayland,SHM,GRASS,No-till,Hayland,UConn,Woodbridge,H2,-72.2346389,41.7541111,1248.73291015625,9.52999973297119,cool_wet
+PaL1-1,PaL1,SHM - Lawn,SHM,GRASS,No-till,Lawn,UConn,Woodbridge,L1,-72.188333,41.7995278,1247.126953125,9.69999980926514,cool_wet
+PaL1-2,PaL1,SHM - Lawn,SHM,GRASS,No-till,Lawn,UConn,Woodbridge,L1,-72.18838889,41.7995556,1247.126953125,9.69999980926514,cool_wet
+PaL2-2,PaL2,SHM - Lawn,SHM,GRASS,No-till,Lawn,UConn,Canton,L2,-72.1895,41.80006,1247.126953125,9.69999980926514,cool_wet
+PaM1-1,PaM1,Ref - Managed forest,Ref,FOREST,Perennial,Managed forest,UConn,Canton,M1,-72.23745,41.8184833,1246.21301269531,9.67999935150146,cool_wet
+PaM2-1,PaM2,SHM - Managed forest,SHM,FOREST,Perennial,Managed forest,UConn,Woodbridge,M2,-72.25135,41.8207833,1245.57397460938,9.39999961853027,cool_wet
+PaM2-2,PaM2,SHM - Managed forest,SHM,FOREST,Perennial,Managed forest,UConn,Woodbridge,M2,-72.2543056,41.821,1245.8369140625,9.38999938964844,cool_wet
+PaT2-1,PaT2,BAU - Conv till silage corn,BAU,CROP,Till,Conv till silage corn,UConn,Woodbridge,T2,-72.2351944,41.7537778,1248.73291015625,9.52999973297119,cool_wet
+PaU1-1,PaU1,Ref - Unmanaged forest,Ref,FOREST,Perennial,Unmanaged forest,UConn,Woodbridge,U1,-72.2388333,41.8184333,1246.03100585938,9.51000022888184,cool_wet
+PaU1-2,PaU1,Ref - Unmanaged forest,Ref,FOREST,Perennial,Unmanaged forest,UConn,Woodbridge,U1,-72.238939,41.818491,1246.03100585938,9.51000022888184,cool_wet
+PaU2-1,PaU2,Ref - Unmanaged forest,Ref,FOREST,Perennial,Unmanaged forest,UConn,Woodbridge,U2,-72.2532778,41.8216111,1246.14892578125,9.48999977111816,cool_wet
+PaU2-2,PaU2,Ref - Unmanaged forest,Ref,FOREST,Perennial,Unmanaged forest,UConn,Woodbridge,U2,-72.25333,41.82161667,1246.14892578125,9.48999977111816,cool_wet
+AR2-1,AR2,Ref - Reference,Ref,FOREST,Perennial,Reference,UTRGV,Hidalgo,UTRGV10,-98.203663,26.309166,568.583862304688,23.8899993896484,warm_dry
+AR2-2,AR2,Ref - Reference,Ref,FOREST,Perennial,Reference,UTRGV,Hidalgo,UTRGV10,-98.20307,26.30907954,568.583862304688,23.8899993896484,warm_dry
+AR2-3,AR2,Ref - Reference,Ref,FOREST,Perennial,Reference,UTRGV,Hidalgo,UTRGV10,-98.202272,26.30896,568.583862304688,23.8899993896484,warm_dry
+AR3-1,AR3,Ref - Reference,Ref,FOREST,Perennial,Reference,UTRGV,Hidalgo,UTRGV11,-97.865571,26.425936,654.02197265625,23.6499996185303,warm_dry
+AR3-2,AR3,Ref - Reference,Ref,FOREST,Perennial,Reference,UTRGV,Hidalgo,UTRGV11,-97.86555,26.42575,654.02197265625,23.6499996185303,warm_dry
+AR3-3,AR3,Ref - Reference,Ref,FOREST,Perennial,Reference,UTRGV,Hidalgo,UTRGV11,-97.863987,26.425912,654.02197265625,23.6499996185303,warm_dry
+AX1-1,AX1,BAU - Conventional Till,BAU,CROP,Till,Conventional Till,UTRGV,Hidalgo,UTRGV1,-97.86129,26.37183,646.9169921875,23.6700000762939,warm_dry
+AX1-2,AX1,BAU - Conventional Till,BAU,CROP,Till,Conventional Till,UTRGV,Hidalgo,UTRGV1,-97.861285,26.376803,646.9169921875,23.6700000762939,warm_dry
+AX1-3,AX1,BAU - Conventional Till,BAU,CROP,Till,Conventional Till,UTRGV,Hidalgo,UTRGV1,-97.861396,26.381147,648.070007324219,23.6700000762939,warm_dry
+AX2-1,AX2,BAU - Conventional Till,BAU,CROP,Till,Conventional Till,UTRGV,Hidalgo,UTRGV2,-97.860439,26.372257,646.9169921875,23.6700000762939,warm_dry
+AX2-2,AX2,BAU - Conventional Till,BAU,CROP,Till,Conventional Till,UTRGV,Hidalgo,UTRGV2,-97.854799,26.372359,646.9169921875,23.6700000762939,warm_dry
+AX2-3,AX2,BAU - Conventional Till,BAU,CROP,Till,Conventional Till,UTRGV,Hidalgo,UTRGV2,-97.841816,26.372348,648.760986328125,23.6599998474121,warm_dry
+AX3-1,AX3,BAU - Conventional Till,BAU,CROP,Till,Conventional Till,UTRGV,Hidalgo,UTRGV3,-97.845711,26.449237,660.111999511719,23.5999984741211,warm_dry
+AX3-2,AX3,BAU - Conventional Till,BAU,CROP,Till,Conventional Till,UTRGV,Hidalgo,UTRGV3,-97.84310718,26.45138326,660.111999511719,23.5999984741211,warm_dry
+AX3-3,AX3,BAU - Conventional Till,BAU,CROP,Till,Conventional Till,UTRGV,Hidalgo,UTRGV3,-97.842418,26.451224,660.111999511719,23.5999984741211,warm_dry
+AY1-1,AY1,BAU - Intermittent Till,BAU,CROP,Till,Intermittent Till,UTRGV,Hidalgo,UTRGV4,-97.87775,26.429164,652.555969238281,23.6499996185303,warm_dry
+AY1-2,AY1,BAU - Intermittent Till,BAU,CROP,Till,Intermittent Till,UTRGV,Hidalgo,UTRGV4,-97.876675,26.428431,652.555969238281,23.6499996185303,warm_dry
+AY1-3,AY1,BAU - Intermittent Till,BAU,CROP,Till,Intermittent Till,UTRGV,Hidalgo,UTRGV4,-97.878012,26.423498,652.555969238281,23.6499996185303,warm_dry
+AY2-1,AY2,BAU - Intermittent Till,BAU,CROP,Till,Intermittent Till,UTRGV,Hidalgo,UTRGV5,-97.87736,26.417867,651.169982910156,23.6499996185303,warm_dry
+AY2-2,AY2,BAU - Intermittent Till,BAU,CROP,Till,Intermittent Till,UTRGV,Hidalgo,UTRGV5,-97.877546,26.408338,649.755981445312,23.6499996185303,warm_dry
+AY2-3,AY2,BAU - Intermittent Till,BAU,CROP,Till,Intermittent Till,UTRGV,Hidalgo,UTRGV5,-97.867819,26.408107,651.102905273438,23.6499996185303,warm_dry
+AY3-1,AY3,BAU - Intermittent Till,BAU,CROP,Till,Intermittent Till,UTRGV,Hidalgo,UTRGV6,-97.894115,26.378011,642.989990234375,23.6800003051758,warm_dry
+AY3-2,AY3,BAU - Intermittent Till,BAU,CROP,Till,Intermittent Till,UTRGV,Hidalgo,UTRGV6,-97.882158,26.371559,644.010009765625,23.6800003051758,warm_dry
+AY3-3,AY3,BAU - Intermittent Till,BAU,CROP,Till,Intermittent Till,UTRGV,Hidalgo,UTRGV6,-97.881485,26.371856,644.010009765625,23.6800003051758,warm_dry
+AZ1-1,AZ1,BAU - Strip Till,BAU,CROP,Till,Strip Till,UTRGV,Hidalgo,UTRGV7,-97.814156,26.442916,661.257995605469,23.5900001525879,warm_dry
+AZ1-2,AZ1,BAU - Strip Till,BAU,CROP,Till,Strip Till,UTRGV,Hidalgo,UTRGV7,-97.81413,26.440373,661.257995605469,23.5900001525879,warm_dry
+AZ1-3,AZ1,BAU - Strip Till,BAU,CROP,Till,Strip Till,UTRGV,Hidalgo,UTRGV7,-97.814157,26.441954,661.257995605469,23.5900001525879,warm_dry
+AZ2-1,AZ2,BAU - Strip Till,BAU,CROP,Till,Strip Till,UTRGV,Hidalgo,UTRGV8,-97.857232,26.358343,645.055969238281,23.6700000762939,warm_dry
+AZ2-2,AZ2,BAU - Strip Till,BAU,CROP,Till,Strip Till,UTRGV,Hidalgo,UTRGV8,-97.846311,26.358388,645.839965820312,23.6700000762939,warm_dry
+AZ2-3,AZ2,BAU - Strip Till,BAU,CROP,Till,Strip Till,UTRGV,Hidalgo,UTRGV8,-97.85824,26.36504,645.898010253906,23.6800003051758,warm_dry
+AZ3-1,AZ3,BAU - Strip Till,BAU,CROP,Till,Strip Till,UTRGV,Hidalgo,UTRGV9,-97.852623,26.389298,650.464965820312,23.6499996185303,warm_dry
+AZ3-2,AZ3,BAU - Strip Till,BAU,CROP,Till,Strip Till,UTRGV,Hidalgo,UTRGV9,-97.852666,26.387731,650.464965820312,23.6499996185303,warm_dry
+AZ3-3,AZ3,BAU - Strip Till,BAU,CROP,Till,Strip Till,UTRGV,Hidalgo,UTRGV9,-97.849146,26.387833,650.464965820312,23.6499996185303,warm_dry
+CVT-1-1,CVT-1,BAU,BAU,CROP,Till,Conv Till - 1,TexasA&MPt-1,Amarillo,Lamesa,-101.9472,32.774177,441.817993164062,16.4099998474121,warm_dry
+CVT-1-2,CVT-1,BAU,BAU,CROP,Till,Conv Till - 1,TexasA&MPt-1,Amarillo,Lamesa,-101.9472,32.774177,441.817993164062,16.4099998474121,warm_dry
+CVT-1-3,CVT-1,BAU,BAU,CROP,Till,Conv Till - 1,TexasA&MPt-1,Amarillo,Lamesa,-101.9472,32.774177,441.817993164062,16.4099998474121,warm_dry
+CVT-2-1,CVT-2,BAU,BAU,CROP,Till,Conv Till - 2,TexasA&MPt-1,Amarillo,Lamesa,-101.947051,32.774988,441.817993164062,16.4099998474121,warm_dry
+CVT-2-2,CVT-2,BAU,BAU,CROP,Till,Conv Till - 2,TexasA&MPt-1,Amarillo,Lamesa,-101.947051,32.774988,441.817993164062,16.4099998474121,warm_dry
+CVT-2-3,CVT-2,BAU,BAU,CROP,Till,Conv Till - 2,TexasA&MPt-1,Amarillo,Lamesa,-101.947051,32.774988,441.817993164062,16.4099998474121,warm_dry
+CVT-3-1,CVT-3,BAU,BAU,CROP,Till,Conv Till - 3,TexasA&MPt-1,Amarillo,Lamesa,-101.947185,32.775734,441.817993164062,16.4099998474121,warm_dry
+CVT-3-2,CVT-3,BAU,BAU,CROP,Till,Conv Till - 3,TexasA&MPt-1,Amarillo,Lamesa,-101.947185,32.775734,441.817993164062,16.4099998474121,warm_dry
+CVT-3-3,CVT-3,BAU,BAU,CROP,Till,Conv Till - 3,TexasA&MPt-1,Amarillo,Lamesa,-101.947185,32.775734,441.817993164062,16.4099998474121,warm_dry
+NAT-1-1,NAT-1,Ref - Native,Ref,GRASS,Perennial,Rangland,TexasA&MPt-1,Amarillo,Wellman,-102.406408,32.060626,354.966003417969,18.0100002288818,warm_dry
+NAT-2-2,NAT-2,Ref - Native,Ref,GRASS,Perennial,Rangland,TexasA&MPt-1,Amarillo,Wellman,-102.406791,33.059817,439.466003417969,16.0699996948242,warm_dry
+NAT-3-3,NAT-3,Ref - Native,Ref,GRASS,Perennial,Rangland,TexasA&MPt-1,Amarillo,Wellman,-102.406186,33.060119,439.466003417969,16.0699996948242,warm_dry
+NTM-1-1,NTM-1,SHM - no-till,SHM,CROP,Till,No Till - Mixed - 1,TexasA&MPt-1,Amarillo,Lamesa,-101.946881,32.774275,441.817993164062,16.4099998474121,warm_dry
+NTM-1-2,NTM-1,SHM - no-till,SHM,CROP,Till,No Till - Mixed - 1,TexasA&MPt-1,Amarillo,Lamesa,-101.946881,32.774275,441.817993164062,16.4099998474121,warm_dry
+NTM-1-3,NTM-1,SHM - no-till,SHM,CROP,Till,No Till - Mixed - 1,TexasA&MPt-1,Amarillo,Lamesa,-101.946881,32.774275,441.817993164062,16.4099998474121,warm_dry
+NTM-2-1,NTM-2,SHM - no-till,SHM,CROP,Till,No Till - Mixed - 2,TexasA&MPt-1,Amarillo,Lamesa,-101.947229,32.775004,441.817993164062,16.4099998474121,warm_dry
+NTM-2-2,NTM-2,SHM - no-till,SHM,CROP,Till,No Till - Mixed - 2,TexasA&MPt-1,Amarillo,Lamesa,-101.947229,32.775004,441.817993164062,16.4099998474121,warm_dry
+NTM-2-3,NTM-2,SHM - no-till,SHM,CROP,Till,No Till - Mixed - 2,TexasA&MPt-1,Amarillo,Lamesa,-101.947229,32.775004,441.817993164062,16.4099998474121,warm_dry
+NTM-3-1,NTM-3,SHM - no-till,SHM,CROP,Till,No Till - Mixed - 3,TexasA&MPt-1,Amarillo,Lamesa,-101.94738,32.775739,441.817993164062,16.4099998474121,warm_dry
+NTM-3-2,NTM-3,SHM - no-till,SHM,CROP,Till,No Till - Mixed - 3,TexasA&MPt-1,Amarillo,Lamesa,-101.94738,32.775739,441.817993164062,16.4099998474121,warm_dry
+NTM-3-3,NTM-3,SHM - no-till,SHM,CROP,Till,No Till - Mixed - 3,TexasA&MPt-1,Amarillo,Lamesa,-101.94738,32.775739,441.817993164062,16.4099998474121,warm_dry
+NTR-1-1,NTR-1,SHM - no-till,SHM,CROP,Till,No Till - Rye - 1,TexasA&MPt-1,Amarillo,Lamesa,-101.947399,32.775007,441.817993164062,16.4099998474121,warm_dry
+NTR-1-2,NTR-1,SHM - no-till,SHM,CROP,Till,No Till - Rye - 1,TexasA&MPt-1,Amarillo,Lamesa,-101.947399,32.775007,441.817993164062,16.4099998474121,warm_dry
+NTR-1-3,NTR-1,SHM - no-till,SHM,CROP,Till,No Till - Rye - 1,TexasA&MPt-1,Amarillo,Lamesa,-101.947399,32.775007,441.817993164062,16.4099998474121,warm_dry
+NTR-2-1,NTR-2,SHM - no-till,SHM,CROP,Till,No Till - Rye - 2,TexasA&MPt-1,Amarillo,Lamesa,-101.947399,32.775007,441.817993164062,16.4099998474121,warm_dry
+NTR-2-2,NTR-2,SHM - no-till,SHM,CROP,Till,No Till - Rye - 2,TexasA&MPt-1,Amarillo,Lamesa,-101.947399,32.775007,441.817993164062,16.4099998474121,warm_dry
+NTR-2-3,NTR-2,SHM - no-till,SHM,CROP,Till,No Till - Rye - 2,TexasA&MPt-1,Amarillo,Lamesa,-101.947399,32.775007,441.817993164062,16.4099998474121,warm_dry
+NTR-3-1,NTR-3,SHM - no-till,SHM,CROP,Till,No Till - Rye - 3,TexasA&MPt-1,Amarillo,Lamesa,-101.947009,32.775683,441.817993164062,16.4099998474121,warm_dry
+NTR-3-2,NTR-3,SHM - no-till,SHM,CROP,Till,No Till - Rye - 3,TexasA&MPt-1,Amarillo,Lamesa,-101.947009,32.775683,441.817993164062,16.4099998474121,warm_dry
+NTR-3-3,NTR-3,SHM - no-till,SHM,CROP,Till,No Till - Rye - 3,TexasA&MPt-1,Amarillo,Lamesa,-101.947009,32.775683,441.817993164062,16.4099998474121,warm_dry
+MT-1-1,MT-1,BAU,BAU,CROP,Till,Mulch tillage fallow after sorghum,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+MT-1-2,MT-1,BAU,BAU,CROP,Till,Mulch tillage fallow after sorghum,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+MT-1-3,MT-1,BAU,BAU,CROP,Till,Mulch tillage fallow after sorghum,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+MT-2-1,MT-2,BAU,BAU,CROP,Till,mulch tillage fallow after wheat,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+MT-2-2,MT-2,BAU,BAU,CROP,Till,mulch tillage fallow after wheat,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+MT-2-3,MT-2,BAU,BAU,CROP,Till,mulch tillage fallow after wheat,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+MT-3-1,MT-3,BAU,BAU,CROP,Till,mulch tillage wheat,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+MT-3-2,MT-3,BAU,BAU,CROP,Till,mulch tillage wheat,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+MT-3-3,MT-3,BAU,BAU,CROP,Till,mulch tillage wheat,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+NT-1-1,NT-1,SHM - no-till,SHM,CROP,No-till,no-till fallow after sorghum,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+NT-1-2,NT-1,SHM - no-till,SHM,CROP,No-till,no-till fallow after sorghum,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+NT-1-3,NT-1,SHM - no-till,SHM,CROP,No-till,no-till fallow after sorghum,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+NT-2-1,NT-2,SHM - no-till,SHM,CROP,No-till,no-till fallow after wheat,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+NT-2-2,NT-2,SHM - no-till,SHM,CROP,No-till,no-till fallow after wheat,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+NT-2-3,NT-2,SHM - no-till,SHM,CROP,No-till,no-till fallow after wheat,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+NT-3-1,NT-3,SHM - no-till,SHM,CROP,No-till,no-till wheat,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+NT-3-2,NT-3,SHM - no-till,SHM,CROP,No-till,no-till wheat,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+NT-3-3,NT-3,SHM - no-till,SHM,CROP,No-till,no-till wheat,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+R-1-1,R-1,Ref - Native,Ref,FORAGE,Perennial,Native Rangeland,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+R-1-2,R-1,Ref - Native,Ref,FORAGE,Perennial,Native Rangeland,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+R-1-3,R-1,Ref - Native,Ref,FORAGE,Perennial,Native Rangeland,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+R-2-1,R-2,Ref - Native,Ref,FORAGE,Perennial,Native with introduced species,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+R-2-2,R-2,Ref - Native,Ref,FORAGE,Perennial,Native with introduced species,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+R-2-3,R-2,Ref - Native,Ref,FORAGE,Perennial,Native with introduced species,TexasA&MPt-2,Pullman,NA,-102.093806,35.18025,469.126983642578,13.7299995422363,cool_dry
+JoF1-1,JoF1,Ref - Forest,Ref,FOREST,Perennial,Forest,OregonState,Jory,OSU1,-123.2972812,44.6361175,1430.36193847656,10.8400001525879,cool_wet
+JoF1-2,JoF1,Ref - Forest,Ref,FOREST,Perennial,Forest,OregonState,Jory,OSU1,-123.2973802,44.6362175,1430.36193847656,10.8400001525879,cool_wet
+JoF1-3,JoF1,Ref - Forest,Ref,FOREST,Perennial,Forest,OregonState,Jory,OSU1,-123.2974823,44.6358175,1430.36193847656,10.8400001525879,cool_wet
+JoF2-1,JoF2,Ref - Forest,Ref,FOREST,Perennial,Forest,OregonState,Jory,OSU2,-123.355451,44.918413,1427.63098144531,11.1499996185303,cool_wet
+JoF2-2,JoF2,Ref - Forest,Ref,FOREST,Perennial,Forest,OregonState,Jory,OSU2,-123.355551,44.918544,1427.63098144531,11.1499996185303,cool_wet
+JoF2-3,JoF2,Ref - Forest,Ref,FOREST,Perennial,Forest,OregonState,Jory,OSU2,-123.355451,44.918514,1427.63098144531,11.1499996185303,cool_wet
+JoF3-1,JoF3,Ref - Forest,Ref,FOREST,Perennial,Forest,OregonState,Jory,OSU10,-123.41895,44.74261,1476.49792480469,11.1899995803833,cool_wet
+JoF3-2,JoF3,Ref - Forest,Ref,FOREST,Perennial,Forest,OregonState,Jory,OSU10,-123.41905,44.74261,1476.49792480469,11.1899995803833,cool_wet
+JoF3-3,JoF3,Ref - Forest,Ref,FOREST,Perennial,Forest,OregonState,Jory,OSU10,-123.41875,44.74261,1476.49792480469,11.1899995803833,cool_wet
+JoV1-1,JoV1,SHM - Vineyard,SHM,CROP,Conservation,Vineyard,OregonState,Jory,OSU4,-123.07116,45.24882,1227.9619140625,11.3299999237061,cool_wet
+JoV1-2,JoV1,SHM - Vineyard,SHM,CROP,Conservation,Vineyard,OregonState,Jory,OSU4,-123.07126,45.24882,1227.9619140625,11.3299999237061,cool_wet
+JoV1-3,JoV1,SHM - Vineyard,SHM,CROP,Conservation,Vineyard,OregonState,Jory,OSU4,-123.07096,45.24912,1227.9619140625,11.3299999237061,cool_wet
+JoV2-1,JoV2,SHM - Vineyard,SHM,CROP,Conservation,Vineyard,OregonState,Jory,OSU11,-123.049801,45.251054,1188.17395019531,11.710000038147,cool_wet
+JoV2-2,JoV2,SHM - Vineyard,SHM,CROP,Conservation,Vineyard,OregonState,Jory,OSU11,-123.049901,45.250954,1188.17395019531,11.710000038147,cool_wet
+JoV2-3,JoV2,SHM - Vineyard,SHM,CROP,Conservation,Vineyard,OregonState,Jory,OSU11,-123.049601,45.251354,1188.17395019531,11.710000038147,cool_wet
+JoV3-1,JoV3,SHM - Vineyard,SHM,CROP,Conservation,Vineyard,OregonState,Jory,OSU14,-123.130763,45.037101,1205.05993652344,11.2199993133545,cool_wet
+JoV3-2,JoV3,SHM - Vineyard,SHM,CROP,Conservation,Vineyard,OregonState,Jory,OSU14,-123.130863,45.037201,1205.05993652344,11.2199993133545,cool_wet
+JoV3-3,JoV3,SHM - Vineyard,SHM,CROP,Conservation,Vineyard,OregonState,Jory,OSU14,-123.130563,45.037101,1205.05993652344,11.2199993133545,cool_wet
+JoXT1-1,JoXT1,BAU - Christmas tree,BAU,CROP,Till,Christmas tree,OregonState,Jory,OSU9,-123.33523,44.4319,1131.23486328125,11.2799997329712,cool_wet
+JoXT1-2,JoXT1,BAU - Christmas tree,BAU,CROP,Till,Christmas tree,OregonState,Jory,OSU9,-123.33533,44.4318,1131.23486328125,11.2799997329712,cool_wet
+JoXT1-3,JoXT1,BAU - Christmas tree,BAU,CROP,Till,Christmas tree,OregonState,Jory,OSU9,-123.33503,44.4316,1131.23486328125,11.2799997329712,cool_wet
+JoXT2-1,JoXT2,BAU - Christmas tree,BAU,CROP,Till,Christmas tree,OregonState,Jory,OSU12,-123.13708,45.04997,1312.6259765625,10.8000001907349,cool_wet
+JoXT2-2,JoXT2,BAU - Christmas tree,BAU,CROP,Till,Christmas tree,OregonState,Jory,OSU12,-123.13718,45.04987,1312.6259765625,10.8000001907349,cool_wet
+JoXT2-3,JoXT2,BAU - Christmas tree,BAU,CROP,Till,Christmas tree,OregonState,Jory,OSU12,-123.13688,45.04997,1312.6259765625,10.8000001907349,cool_wet
+JoXT3-1,JoXT3,BAU - Christmas tree,BAU,CROP,Till,Christmas tree,OregonState,Jory,OSU13,-122.90909,44.910377,1183.08081054688,11.4799995422363,cool_wet
+JoXT3-2,JoXT3,BAU - Christmas tree,BAU,CROP,Till,Christmas tree,OregonState,Jory,OSU13,-122.90899,44.910277,1183.08081054688,11.4799995422363,cool_wet
+JoXT3-3,JoXT3,BAU - Christmas tree,BAU,CROP,Till,Christmas tree,OregonState,Jory,OSU13,-122.90889,44.910077,1183.08081054688,11.4799995422363,cool_wet
+WoCT1-1,WoCT1,BAU - Conventional till,BAU,CROP,Till,Conventional till,OregonState,Woodburn,OSU6,-122.964818,45.231102,1080.23303222656,11.8800001144409,cool_wet
+WoCT1-2,WoCT1,BAU - Conventional till,BAU,CROP,Till,Conventional till,OregonState,Woodburn,OSU6,-122.964718,45.231202,1080.23303222656,11.8800001144409,cool_wet
+WoCT1-3,WoCT1,BAU - Conventional till,BAU,CROP,Till,Conventional till,OregonState,Woodburn,OSU6,-122.964618,45.231402,1080.23303222656,11.8800001144409,cool_wet
+WoCT2-1,WoCT2,BAU - Conventional till,BAU,CROP,Till,Conventional till,OregonState,Woodburn,OSU16,-122.842842,45.014134,1114.06896972656,11.8899993896484,cool_wet
+WoCT2-2,WoCT2,BAU - Conventional till,BAU,CROP,Till,Conventional till,OregonState,Woodburn,OSU16,-122.842742,45.014034,1114.06896972656,11.8899993896484,cool_wet
+WoCT2-3,WoCT2,BAU - Conventional till,BAU,CROP,Till,Conventional till,OregonState,Woodburn,OSU16,-122.843042,45.013834,1114.06896972656,11.8899993896484,cool_wet
+WoCT3-1,WoCT3,BAU - Conventional till,BAU,CROP,Till,Conventional till,OregonState,Woodburn,OSU17,-123.06167,45.1251,1089.77001953125,11.8499994277954,cool_wet
+WoCT3-2,WoCT3,BAU - Conventional till,BAU,CROP,Till,Conventional till,OregonState,Woodburn,OSU17,-123.06201,45.1251,1089.77001953125,11.8499994277954,cool_wet
+WoCT3-3,WoCT3,BAU - Conventional till,BAU,CROP,Till,Conventional till,OregonState,Woodburn,OSU17,-123.06134,45.1248,1089.77001953125,11.8499994277954,cool_wet
+WoH1-1,WoH1,Ref - Hazelnut,Ref,ORCHARD,Perennial,Hazelnut,OregonState,Woodburn,OSU5,-122.96961,45.2279,1083.07189941406,11.8800001144409,cool_wet
+WoH1-2,WoH1,Ref - Hazelnut,Ref,ORCHARD,Perennial,Hazelnut,OregonState,Woodburn,OSU5,-122.96961,45.2278,1083.07189941406,11.8800001144409,cool_wet
+WoH1-3,WoH1,Ref - Hazelnut,Ref,ORCHARD,Perennial,Hazelnut,OregonState,Woodburn,OSU5,-122.96981,45.2279,1083.07189941406,11.8800001144409,cool_wet
+WoH2-1,WoH2,Ref - Hazelnut,Ref,ORCHARD,Perennial,Hazelnut,OregonState,Woodburn,OSU8,-123.213416,45.074334,1128.04699707031,11.8099994659424,cool_wet
+WoH2-2,WoH2,Ref - Hazelnut,Ref,ORCHARD,Perennial,Hazelnut,OregonState,Woodburn,OSU8,-123.213516,45.074334,1128.04699707031,11.8099994659424,cool_wet
+WoH2-3,WoH2,Ref - Hazelnut,Ref,ORCHARD,Perennial,Hazelnut,OregonState,Woodburn,OSU8,-123.213616,45.074334,1128.04699707031,11.8099994659424,cool_wet
+WoH3-1,WoH3,Ref - Hazelnut,Ref,ORCHARD,Perennial,Hazelnut,OregonState,Woodburn,OSU15,-122.86279,44.94845,1122.87292480469,11.8199996948242,cool_wet
+WoH3-2,WoH3,Ref - Hazelnut,Ref,ORCHARD,Perennial,Hazelnut,OregonState,Woodburn,OSU15,-122.86289,44.94855,1122.87292480469,11.8199996948242,cool_wet
+WoH3-3,WoH3,Ref - Hazelnut,Ref,ORCHARD,Perennial,Hazelnut,OregonState,Woodburn,OSU15,-122.86259,44.94815,1122.87292480469,11.8199996948242,cool_wet
+WoNT1-1,WoNT1,SHM - No-till,SHM,CROP,No-till,No-till,OregonState,Woodburn,OSU3,-123.27097,44.737333,1099.40295410156,11.6499996185303,cool_wet
+WoNT1-2,WoNT1,SHM - No-till,SHM,CROP,No-till,No-till,OregonState,Woodburn,OSU3,-123.27107,44.737333,1099.40295410156,11.6499996185303,cool_wet
+WoNT1-3,WoNT1,SHM - No-till,SHM,CROP,No-till,No-till,OregonState,Woodburn,OSU3,-123.27077,44.737633,1103.5009765625,11.5599994659424,cool_wet
+WoNT2-1,WoNT2,SHM - No-till,SHM,GRASS,No-till,No-till,OregonState,Woodburn,OSU7,-123.21367,45.07067,1128.01098632812,11.8199996948242,cool_wet
+WoNT2-2,WoNT2,SHM - No-till,SHM,GRASS,No-till,No-till,OregonState,Woodburn,OSU7,-123.21377,45.07057,1128.01098632812,11.8199996948242,cool_wet
+WoNT2-3,WoNT2,SHM - No-till,SHM,GRASS,No-till,No-till,OregonState,Woodburn,OSU7,-123.21387,45.07097,1128.04699707031,11.8099994659424,cool_wet
+WoNT3-1,WoNT3,SHM - No-till,SHM,CROP,No-till,No-till,OregonState,Woodburn,OSU18,-122.856544,44.950981,1134.88098144531,11.7699995040894,cool_wet
+WoNT3-2,WoNT3,SHM - No-till,SHM,CROP,No-till,No-till,OregonState,Woodburn,OSU18,-122.856644,44.950981,1134.88098144531,11.7699995040894,cool_wet
+WoNT3-3,WoNT3,SHM - No-till,SHM,CROP,No-till,No-till,OregonState,Woodburn,OSU18,-122.856744,44.950981,1134.88098144531,11.7699995040894,cool_wet

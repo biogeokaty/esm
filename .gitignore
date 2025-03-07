@@ -8,3 +8,6 @@ README.html
 
 figs/
 data_raw/
+data_processed/esm_input*
+data_processed/esm_output*
+data_processed/Output_*
