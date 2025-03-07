@@ -478,7 +478,15 @@ depth_plots_all[[5]] / depth_plots_all[[8]] + plot_layout(axes="collect", guides
 ggsave(here("figs", "ms_figs", "fig3_depth_plots_wsu_tam1.pdf"),
        width=160, height=200, units="mm",dpi=1000)
 ```
-
+```{r actual depths used for text}
+# Pull out actual data for text reference
+esm_wash_tam_depths <- esm_all_depth_plot %>%
+  filter(project=="WashingtonState" | project=="TexasA&MPt-1") %>%
+  group_by(project, ref_data, ref_stat, apparent_bottom_depth) %>%
+  summarize(across(topdepth:depth, ~mean(.x, na.rm=TRUE))) %>%
+  arrange(desc(apparent_bottom_depth))
+flextable(esm_wash_tam_depths)  
+```
 ## Observed differences between management conditions
 
 We will focus on standard depth increments here because we know there is no significant difference in SOC stocks based on depth increment method selection, and standard depth increments are easier to compare between projects.

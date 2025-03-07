@@ -303,7 +303,7 @@ summary(glht(method_0to10_lmer, linfct = mcp(method_longest = 'Tukey')))
     ## fd_fd_no_ref - esm2_mean_all_data == 0                 0.241    
     ## esm2_min_all_data - esm2_mean_indv_project == 0       <0.001 ***
     ## esm2_min_indv_project - esm2_mean_indv_project == 0   <0.001 ***
-    ## fd_fd_no_ref - esm2_mean_indv_project == 0             0.667    
+    ## fd_fd_no_ref - esm2_mean_indv_project == 0             0.666    
     ## esm2_min_indv_project - esm2_min_all_data == 0        <0.001 ***
     ## fd_fd_no_ref - esm2_min_all_data == 0                 <0.001 ***
     ## fd_fd_no_ref - esm2_min_indv_project == 0             <0.001 ***
@@ -450,7 +450,7 @@ summary(glht(method_0to30_lmer, linfct = mcp(method_longest = 'Tukey')))
     ## esm2_min_all_data - esm2_max_all_data == 0           < 0.001 ***
     ## esm2_min_indv_project - esm2_max_all_data == 0       < 0.001 ***
     ## fd_fd_no_ref - esm2_max_all_data == 0                < 0.001 ***
-    ## esm2_mean_all_data - esm2_max_indv_project == 0      0.00238 ** 
+    ## esm2_mean_all_data - esm2_max_indv_project == 0      0.00231 ** 
     ## esm2_mean_indv_project - esm2_max_indv_project == 0  < 0.001 ***
     ## esm2_min_all_data - esm2_max_indv_project == 0       < 0.001 ***
     ## esm2_min_indv_project - esm2_max_indv_project == 0   < 0.001 ***
@@ -458,10 +458,10 @@ summary(glht(method_0to30_lmer, linfct = mcp(method_longest = 'Tukey')))
     ## esm2_mean_indv_project - esm2_mean_all_data == 0     0.99644    
     ## esm2_min_all_data - esm2_mean_all_data == 0          < 0.001 ***
     ## esm2_min_indv_project - esm2_mean_all_data == 0      < 0.001 ***
-    ## fd_fd_no_ref - esm2_mean_all_data == 0               0.06302 .  
+    ## fd_fd_no_ref - esm2_mean_all_data == 0               0.06329 .  
     ## esm2_min_all_data - esm2_mean_indv_project == 0      < 0.001 ***
     ## esm2_min_indv_project - esm2_mean_indv_project == 0  < 0.001 ***
-    ## fd_fd_no_ref - esm2_mean_indv_project == 0           0.26711    
+    ## fd_fd_no_ref - esm2_mean_indv_project == 0           0.26748    
     ## esm2_min_indv_project - esm2_min_all_data == 0       < 0.001 ***
     ## fd_fd_no_ref - esm2_min_all_data == 0                < 0.001 ***
     ## fd_fd_no_ref - esm2_min_indv_project == 0            < 0.001 ***
@@ -569,8 +569,6 @@ drop1(lmer(soc_0to100 ~ method_longest + (1|project/label), data = esm_stock_com
 summary(glht(method_0to100_lmer, linfct = mcp(method_longest = 'Tukey')))
 ```
 
-    ## Warning in RET$pfunction("adjusted", ...): Completion with error > abseps
-
     ## 
     ##   Simultaneous Tests for General Linear Hypotheses
     ## 
@@ -610,21 +608,21 @@ summary(glht(method_0to100_lmer, linfct = mcp(method_longest = 'Tukey')))
     ## esm2_min_all_data - esm2_max_all_data == 0           < 0.001 ***
     ## esm2_min_indv_project - esm2_max_all_data == 0       < 0.001 ***
     ## fd_fd_no_ref - esm2_max_all_data == 0                < 0.001 ***
-    ## esm2_mean_all_data - esm2_max_indv_project == 0      0.61608    
-    ## esm2_mean_indv_project - esm2_max_indv_project == 0  0.58624    
+    ## esm2_mean_all_data - esm2_max_indv_project == 0      0.61596    
+    ## esm2_mean_indv_project - esm2_max_indv_project == 0  0.58647    
     ## esm2_min_all_data - esm2_max_indv_project == 0       < 0.001 ***
-    ## esm2_min_indv_project - esm2_max_indv_project == 0   0.00893 ** 
-    ## fd_fd_no_ref - esm2_max_indv_project == 0            0.33321    
+    ## esm2_min_indv_project - esm2_max_indv_project == 0   0.00902 ** 
+    ## fd_fd_no_ref - esm2_max_indv_project == 0            0.33316    
     ## esm2_mean_indv_project - esm2_mean_all_data == 0     1.00000    
     ## esm2_min_all_data - esm2_mean_all_data == 0          < 0.001 ***
-    ## esm2_min_indv_project - esm2_mean_all_data == 0      0.55888    
+    ## esm2_min_indv_project - esm2_mean_all_data == 0      0.55879    
     ## fd_fd_no_ref - esm2_mean_all_data == 0               0.99950    
     ## esm2_min_all_data - esm2_mean_indv_project == 0      < 0.001 ***
-    ## esm2_min_indv_project - esm2_mean_indv_project == 0  0.58856    
+    ## esm2_min_indv_project - esm2_mean_indv_project == 0  0.58866    
     ## fd_fd_no_ref - esm2_mean_indv_project == 0           0.99973    
-    ## esm2_min_indv_project - esm2_min_all_data == 0       0.13185    
-    ## fd_fd_no_ref - esm2_min_all_data == 0                0.00163 ** 
-    ## fd_fd_no_ref - esm2_min_indv_project == 0            0.82740    
+    ## esm2_min_indv_project - esm2_min_all_data == 0       0.13183    
+    ## fd_fd_no_ref - esm2_min_all_data == 0                0.00160 ** 
+    ## fd_fd_no_ref - esm2_min_indv_project == 0            0.82733    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## (Adjusted p values reported -- single-step method)
@@ -1261,12 +1259,12 @@ summary(glht(ref_stat_0to100_lmer, linfct = mcp(ref_stat = 'Tukey')))
     ## 
     ## Linear Hypotheses:
     ##                 Estimate Std. Error z value Pr(>|z|)    
-    ## max - fd == 0     35.173      9.385   3.748  0.00108 ** 
-    ## mean - fd == 0     2.851      9.385   0.304  0.98971    
-    ## min - fd == 0    -18.339      9.385  -1.954  0.19450    
-    ## mean - max == 0  -32.322      4.971  -6.502  < 0.001 ***
-    ## min - max == 0   -53.512      4.971 -10.765  < 0.001 ***
-    ## min - mean == 0  -21.190      4.971  -4.263  < 0.001 ***
+    ## max - fd == 0     35.173      9.385   3.748   <0.001 ***
+    ## mean - fd == 0     2.851      9.385   0.304    0.990    
+    ## min - fd == 0    -18.339      9.385  -1.954    0.194    
+    ## mean - max == 0  -32.322      4.971  -6.502   <0.001 ***
+    ## min - max == 0   -53.512      4.971 -10.765   <0.001 ***
+    ## min - mean == 0  -21.190      4.971  -4.263   <0.001 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## (Adjusted p values reported -- single-step method)
@@ -1393,7 +1391,24 @@ ggsave(here("figs", "ms_figs", "fig3_depth_plots_wsu_tam1.pdf"),
        width=160, height=200, units="mm",dpi=1000)
 ```
 
-## Observed differences between management conditions
+``` r
+# Pull out actual data for text reference
+esm_wash_tam_depths <- esm_all_depth_plot %>%
+  filter(project=="WashingtonState" | project=="TexasA&MPt-1") %>%
+  group_by(project, ref_data, ref_stat, apparent_bottom_depth) %>%
+  summarize(across(topdepth:depth, ~mean(.x, na.rm=TRUE))) %>%
+  arrange(desc(apparent_bottom_depth))
+```
+
+    ## `summarise()` has grouped output by 'project', 'ref_data', 'ref_stat'. You can
+    ## override using the `.groups` argument.
+
+``` r
+flextable(esm_wash_tam_depths)  
+```
+
+<img src="esm_manuscript_files/figure-gfm/actual depths used for text-1.png" width="1354" />
+\## Observed differences between management conditions
 
 We will focus on standard depth increments here because we know there is
 no significant difference in SOC stocks based on depth increment method
