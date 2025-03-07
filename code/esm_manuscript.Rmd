@@ -2,9 +2,7 @@
 title: "esm_manuscript"
 author: "Katy Dynarski"
 date: "`r Sys.Date()`"
-output: 
-  html_document: 
-    keep_md: yes
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
