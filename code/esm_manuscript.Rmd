@@ -146,7 +146,7 @@ esm_stock_compare_longer <- esm_stock_compare %>%
 ```
 Plot total SOC stocks calculated using each method:
 
-```{r Figure S2 - boxplot comparing total SOC stocks for all different methods}
+```{r Figure S2}
 ggplot(esm_stock_compare_longer,
        aes(x=method_long, y=soc, fill=ref_data)) +
   geom_boxplot() +
@@ -168,7 +168,7 @@ ggsave(here("figs", "ms_figs", "suppfig2_all_soc_stock_totals.png"),
 ```
 Make version for each project:
 
-```{r Fig S1-8 boxplot comparing total SOC stocks for all different methods for each project, echo=FALSE}
+```{r Fig S1-8, echo=FALSE}
 # Save PNG of figures for supplement
 purrr::map(.x = projects, 
            .f = ~{
@@ -216,7 +216,7 @@ soc_stocks_all <- purrr::map(.x = projects,
 
 Alternate version with Washington State and Texas A&M (sites with highest and lowest bulk density:
 
-```{r Figure 2 - Washington State and TAM}
+```{r Figure 2}
 soc_stocks_all[[5]] / soc_stocks_all[[8]] + plot_layout(axes="collect", guides="collect")
 
 ggsave(here("figs", "ms_figs", "fig2_soc_stock_totals_wsu_tam1.pdf"),
@@ -405,7 +405,7 @@ Reference summary statistic choice does drive significant differences in SOC sto
 
 ## Depth of data used
 
-```{r comparison of depths for just cubic spline}
+```{r cubic spline depth comparison}
 esm_all_depth_plot <- esm_all_clean %>%
   mutate(apparent_depth = str_remove(apparent_depth, " cm")) %>%
   separate_wider_delim(apparent_depth, delim="-", names=c("apparent_top_depth", "apparent_bottom_depth")) %>%
@@ -474,7 +474,7 @@ ggsave(here("figs", "ms_figs", "suppfig9_depth_plot.png"),
 
 Plot with just Washington State and TAM for manuscript:
 
-```{r Figure 3 - influence of reference mass data source on soil depths used - Wash and TAM projects only}
+```{r Figure 3}
 depth_plots_all[[5]] / depth_plots_all[[8]] + plot_layout(axes="collect", guides="collect")
 
 ggsave(here("figs", "ms_figs", "fig3_depth_plots_wsu_tam1.pdf"),
@@ -489,7 +489,7 @@ First, we will examine how ESM method selection influences our ability to detect
 
 Run linear mixed models for each method/depth combination and extract significance:
 
-```{r lme for management effect on total SOC stocks in each method/depth combination}
+```{r lme for management effect on total SOC stocks}
 # Make a big ol' nested dataframe with the mixed effects models, significance test for model, significance letters, and tidy model output
 esm_group_comp <- esm_stock_compare_longer %>%
   group_by(ref_data, method_long, method_longest, depth) %>%
@@ -532,7 +532,7 @@ All methods detect significant between-group differences in all depths (0-10 cm,
 
 Make plots showing SOC stocks by management treatment:
 
-```{r Figure S16 - management impacts all data}
+```{r Figure S16}
 # figure with all data, no separation by project
 ggplot(esm_stock_compare_longer, aes(x=method_longest, y=soc, fill=label)) +
   geom_boxplot() +
@@ -548,7 +548,7 @@ ggsave(here("figs", "ms_figs", "fig4_stock_mgmt.png"),
        width=9, height=6.5, dpi=400)
 ```
 
-```{r figure 4 - soc stocks by management with WashState and TAM data}
+```{r figure 4}
 # Save figures for supplement
 purrr::map(.x = projects,
            .f = ~{
@@ -598,7 +598,7 @@ ggsave(here("figs", "ms_figs", "fig4_soc_mgmt_wsu_tam1.pdf"),
 
 ## Mean bulk density data for each project/depth/treatment:
 
-```{r Fig S23 - bulk density}
+```{r Fig S23}
 bd <- soc_horizon %>%
   select(project, label, dsp_pedon_id, dsp_sample_id, hrzdep_t, hrzdep_b, bd_fill)
 
@@ -663,7 +663,7 @@ ggsave(here("figs", "ms_figs", "bulk_density.png"),
 
 ## Map of DSP4SH project locations
 
-```{r fig s1 - map of project locations}
+```{r fig s1}
 # Make data for plotting
 dsp4sh_esm_map_data <- project %>%
   filter(project!="TexasA&MPt-2", project!="UTRGV") %>%
@@ -707,7 +707,7 @@ ggsave(here("figs", "ms_figs", "figs1_project_map.png"), height=5, width=8, unit
 
 ## Does using ESM(all) contribute to error?
 
-```{r calculate and plot within-layer CV}
+```{r within-layer CV}
 # calculate CV for each layer within each project/management group
 depth_comp_error <- esm_all_clean %>%
   filter(depth_increments=="standard") %>%
@@ -727,7 +727,7 @@ This figure is small and hard to interpret but overall I am pretty sure it shows
 
 Try pulling out just one project to be able to see better:
 
-```{r plot CV vs. calculation method and depth increment for Illinois project only, echo=FALSE}
+```{r CV vs calculation and depth, echo=FALSE}
 ggplot(depth_comp_error %>% filter(project=="Illinois"), aes(y=layer_cv, x=method_long, fill=ref_data)) +
   geom_boxplot() +
   facet_wrap(~layer, scales="free_y") +
