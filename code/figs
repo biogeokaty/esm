@@ -1,0 +1,6 @@
+layer,esm1_min,esm1_mean,esm1_max,esm2_min,esm2_mean,esm2_max,fd_fd
+1,significant,significant,significant,significant,significant,significant,significant
+2,significant,significant,significant,significant,significant,significant,significant
+3,significant,significant,significant,significant,significant,significant,significant
+4,significant,not_significant,not_significant,significant,not_significant,not_significant,significant
+5,not_significant,not_significant,not_significant,not_significant,not_significant,not_significant,not_significant

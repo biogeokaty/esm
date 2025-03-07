@@ -2,5 +2,9 @@
 .Rhistory
 .RData
 .Ruserdata
+esm.Rproj
+
+README.html
 
 figs/
+data_raw/

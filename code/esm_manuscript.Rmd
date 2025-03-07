@@ -1,0 +1,757 @@
+---
+title: "esm_manuscript"
+author: "Katy Dynarski"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Packages
+library(here)
+library(janitor)
+library(paletteer)
+library(sf)
+library(ggeasy)
+library(ggspatial)
+library(ggrepel)
+library(rms)
+library(aqp)
+library(cowplot)
+library(lme4)
+library(broom.mixed)
+library(multcomp)
+library(ggeffects)
+library(flextable)
+library(patchwork)
+library(tidyverse)
+
+# Data
+esm_all_clean <- read.csv(here("data_processed", "esm_all.csv")) %>%
+  filter(project!="UTRGV") %>% # don't include UTRGV for this analysis - bulk density is from SSURGO
+  filter(method!="esm1") %>% # not including ESM classic in this analysis - just compare cubic spline
+  unite("method_longest", c("method_long", "ref_data"), sep="_", remove = FALSE)
+
+soc_horizon <- read.csv(here("data_processed", "04_soc_stock_horizon.csv"))
+
+project <- read.csv(here("data_processed", "05_project_data.csv"))
+
+# List of projects
+projects <- esm_all_clean %>% 
+  distinct(project) %>% 
+  pull()
+
+# Make list of summary functions - useful for generating summary tables
+sd_cv <- list(
+  sd = ~round(sd(.x, na.rm = TRUE), 2),
+  cv = ~round(((sd(.x, na.rm=TRUE) / mean(.x, na.rm=TRUE))* 100), 2)
+)
+
+# depth layer labels
+std_depth_labels <- c(
+  "1" = "0-10 cm",
+  "2" = "10-30 cm",
+  "3" = "30-50 cm",
+  "4" = "50-75 cm",
+  "5" = "75-100 cm"
+)
+
+# depth layer labels
+std_depth_labels2 <- c(
+  "10" = "0-10 cm",
+  "30" = "10-30 cm",
+  "50" = "30-50 cm",
+  "75" = "50-75 cm",
+  "100" = "75-100 cm"
+)
+
+stock_depth_labels <- c(
+  "0to10" = "0-10 cm",
+  "0to30" = "0-30 cm",
+  "0to100" = "0-100 cm"
+)
+
+depth_labels2 <- c(
+  "1" = "Depth interval for\nESM calculations: 0-10 cm",
+  "2" = "Depth interval for\nESM calculations: 10-30 cm",
+  "3" = "Depth interval for\nESM calculations: 30-50 cm",
+  "4" = "Depth interval for\nESM calculations: 50-75 cm",
+  "5" = "Depth interval for\nESM calculations: 75-100 cm"
+)
+
+esm_labels <- c(
+  "esm1" = "Classic ESM",
+  "esm2" = "Cubic Spline ESM",
+  "fd" = "Fixed Depth"
+)
+
+project_labels_esm <- c("UnivOfMinnesota" = "University of Minnesota",
+                    "WashingtonState" = "Washington State",
+                    "TexasA&MPt-1" = "Texas A&M",
+                    "NCState" = "North Carolina State",
+                    "Illinois" = "University of Illinois",
+                    "OregonState" = "Oregon State",
+                    "KansasState" = "Kansas State",
+                    "UConn" = "University of Connecticut")
+
+project_labels_esm_df <- data.frame(project_labels_esm) %>%
+  rownames_to_column()
+
+method_labels <- c(
+  "esm2_max_all_data" = expression("ESM"["all, max"]),      
+  "esm2_max_indv_project" = expression("ESM"["project, max"]), 
+  "esm2_mean_all_data"= expression("ESM"["all, mean"]),   
+  "esm2_mean_indv_project" = expression("ESM"["project, mean"]),
+  "esm2_min_all_data" = expression("ESM"["all, min"]),
+  "esm2_min_indv_project" = expression("ESM"["project, min"]),  
+  "fd_fd_no_ref" = "Fixed depth"
+)
+
+theme_katy <- function(base_size=8) {
+  theme_classic(base_size=base_size) %+replace%
+    theme(# Legend
+      legend.title=element_text(size=rel(1)), legend.text=element_text(size=rel(.8)),
+      #axes                      
+      axis.text=element_text(size=rel(.8)),
+      axis.title=element_text(size=rel(1)))
+}
+```
+
+# How does ESM choice influence total calculated SOC stocks?
+
+### Compare ESM(all) to ESM(project)
+
+Calculate SOC stock totals for all scenarios:
+
+```{r calculate soc stock totals for all scenarios}
+# Calculate SOC stock totals for all scenarios
+esm_stock_compare <- esm_all_clean %>%
+  filter(depth_increments == "standard") %>%
+  group_by(project, depth_increments, method_longest, method_long, method, ref_stat, ref_data, label, dsp_pedon_id) %>%
+  summarize(soc_0to10 = sum(soc[apparent_depth=="0-10 cm"]),
+            soc_0to30 = sum(soc[apparent_depth=="0-10 cm" | apparent_depth=="10-30 cm"]),
+            soc_0to100 = sum(soc)) 
+
+# Pivot depths to longer format
+esm_stock_compare_longer <- esm_stock_compare %>%
+  pivot_longer(cols=soc_0to10:soc_0to100,
+               names_to = c(".value", "depth"),
+               names_sep="_") %>%
+  mutate(label=factor(label, levels=c("BAU", "SHM", "Ref")),
+         depth=factor(depth, levels=c("0to10", "0to30", "0to100")))
+```
+Plot total SOC stocks calculated using each method:
+
+```{r Figure S2 - boxplot comparing total SOC stocks for all different methods}
+
+ggplot(esm_stock_compare_longer,
+       aes(x=method_long, y=soc, fill=ref_data)) +
+  geom_boxplot() +
+  facet_wrap(~depth, scales="free", labeller=labeller(depth=stock_depth_labels)) +
+  labs(y="SOC Stock (Mg/ha)",
+       x="SOC stock calculation method",
+       title="SOC stocks by depth and calculation method") +
+  scale_x_discrete(breaks = c("fd_fd", "esm2_max", "esm2_mean", "esm2_min"),
+                   labels=c("Fixed depth", expression("ESM"["max"]), expression("ESM"["mean"]), 
+                            expression("ESM"["min"]))) +
+  scale_fill_paletteer_d("nationalparkcolors::Arches", 
+                         name="Reference mass data source", 
+                         labels=c(expression("ESM"["all"]), expression("ESM"["project"]), "Fixed depth")) +
+  theme_classic() +
+  theme(axis.text.x=element_text(hjust=1, angle=45))
+
+ggsave(here("figs", "ms_figs", "suppfig2_all_soc_stock_totals.png"),
+       width=7.75, height=6.5, dpi=400)
+
+```
+Make version for each project:
+
+```{r Fig S1-8 boxplot comparing total SOC stocks for all different methods for each project, echo=FALSE}
+# Save PNG of figures for supplement
+purrr::map(.x = projects, 
+           .f = ~{
+             esm_stock_compare_longer %>% 
+               filter(project==.x) %>%
+               ggplot(aes(x=method_long, y=soc, fill=ref_data)) +
+               geom_boxplot() +
+               facet_wrap(~depth, scales="free", labeller=labeller(depth=stock_depth_labels)) +
+               labs(y="SOC Stock (Mg/ha)",
+                    x="SOC stock calculation method",
+                    title=glue::glue({filter(project_labels_esm_df, rowname==.x)$project_labels_esm})) + 
+               scale_x_discrete(breaks = c("fd_fd", "esm2_max", "esm2_mean", "esm2_min"),
+                                labels=c("Fixed depth", expression("ESM"["max"]), expression("ESM"["mean"]),
+                                         expression("ESM"["min"]))) +
+               scale_fill_paletteer_d("nationalparkcolors::Arches",
+                                      name="Reference mass data source",
+                                      labels=c(expression("ESM"["all"]), expression("ESM"["project"]), "Fixed depth")) +
+               theme_classic() +
+               theme(axis.text.x=element_text(hjust=1, angle=45))
+             
+             ggsave(here("figs", "ms_figs", glue::glue("suppfig_soc_stocks_", .x, ".png")), 
+                                              width=7.75, height=6.5, units="in", dpi=400)
+                                     })
+# Save to an object
+soc_stocks_all <- purrr::map(.x = projects, 
+           .f = ~{
+             esm_stock_compare_longer %>% 
+               filter(project==.x) %>%
+               ggplot(aes(x=method_long, y=soc, fill=ref_data)) +
+               geom_boxplot(fatten=1.5, lwd=0.3, outlier.size=0.8) +
+               facet_wrap(~depth, scales="free", labeller=labeller(depth=stock_depth_labels)) +
+               labs(y="SOC Stock (Mg/ha)",
+                    x="SOC stock calculation method",
+                    title=glue::glue({filter(project_labels_esm_df, rowname==.x)$project_labels_esm})) + 
+               scale_x_discrete(breaks = c("fd_fd", "esm2_max", "esm2_mean", "esm2_min"),
+                                labels=c("Fixed depth", expression("ESM"["max"]), expression("ESM"["mean"]),
+                                         expression("ESM"["min"]))) +
+               scale_fill_paletteer_d("nationalparkcolors::Arches",
+                                      name="Reference mass data source",
+                                      labels=c(expression("ESM"["all"]), expression("ESM"["project"]), "Fixed depth")) +
+               theme_katy() +
+               theme(axis.text.x=element_text(hjust=1, angle=45))
+                                     })
+```
+
+Alternate version with Washington State and Texas A&M (sites with highest and lowest bulk density:
+
+```{r Figure 2 - Washington State and TAM}
+
+soc_stocks_all[[5]] / soc_stocks_all[[8]] + plot_layout(axes="collect", guides="collect")
+
+ggsave(here("figs", "ms_figs", "fig2_soc_stock_totals_wsu_tam1.pdf"),
+       width=150, height=150, units="mm",dpi=1000)
+```
+
+Also want to know what is the difference between the smallest and largest SOC stocks calculated for a particular pedon using these different methods?
+
+```{r difference in soc stocks}
+
+stock_diff <- esm_stock_compare_longer %>%
+  group_by(project, label, dsp_pedon_id, depth) %>%
+  summarize(min_soc_stock = min(soc),
+            max_soc_stock = max(soc),
+            diff = max_soc_stock - min_soc_stock)
+
+mean_diff_project <- stock_diff %>%
+  ungroup() %>%
+  group_by(project, depth) %>%
+  summarize(mean_diff_soc_stock = mean(diff),
+            min_diff_soc_stock = min(diff),
+            max_diff_soc_stock = max(diff))
+
+flextable(mean_diff_project)
+
+mean_diff <- stock_diff %>%
+  ungroup() %>%
+  group_by(depth) %>%
+  summarize(mean_diff_soc_stock = mean(diff),
+            min_diff_soc_stock = min(diff),
+            max_diff_soc_stock = max(diff))
+
+flextable(mean_diff)
+  
+```
+
+## Effect of overall method
+
+Test for significant differences between stocks calculated via different methods using linear mixed model:
+
+```{r lme for effect of overall method on SOC stocks}
+# Fixed effect is overall method, random effect is nested project and label
+
+# For 0-10 cm stocks
+method_0to10_lmer <- lmer(soc_0to10 ~ method_longest + (1|project/label), data = esm_stock_compare)
+summary(method_0to10_lmer)
+
+# Is reference data choice significant overall?
+drop1(lmer(soc_0to10 ~ method_longest + (1|project/label), data = esm_stock_compare, REML=FALSE), test = "Chisq")
+
+# Significantly different pairs
+summary(glht(method_0to10_lmer, linfct = mcp(method_longest = 'Tukey')))
+
+# For 0-30 cm stocks
+method_0to30_lmer <- lmer(soc_0to30 ~ method_longest + (1|project/label), data = esm_stock_compare)
+summary(method_0to30_lmer)
+
+# Is reference data choice significant overall?
+drop1(lmer(soc_0to30 ~ method_longest + (1|project/label), data = esm_stock_compare, REML=FALSE), test = "Chisq")
+
+# Significantly different pairs
+summary(glht(method_0to30_lmer, linfct = mcp(method_longest = 'Tukey')))
+
+# For 0-100 cm stocks
+method_0to100_lmer <- lmer(soc_0to100 ~ method_longest + (1|project/label), data = esm_stock_compare)
+summary(method_0to100_lmer)
+
+# Is reference data choice significant overall?
+drop1(lmer(soc_0to100 ~ method_longest + (1|project/label), data = esm_stock_compare, REML=FALSE), test = "Chisq")
+
+# Significantly different pairs
+summary(glht(method_0to100_lmer, linfct = mcp(method_longest = 'Tukey')))
+```
+
+Different methods result in significantly different SOC stocks!
+
+-  For 0-10 cm and 0-30 cm depths, most methods result in significantly different SOC stocks. ESM-mean tends to be most comparable to fixed depth.
+
+-   For 0-100 cm depth, there are fewer significant differences between methods. Fixed depth vs. ESM-mean and ESM-min are comparable. All other methods result in significantly different stocks. 
+
+## Effect of ESM versus FD
+
+Test specifically for significant differences due to ESM versus FD using linear mixed model:
+
+```{r lme for effect of method choice on SOC stocks}
+# Fixed effect is reference data choice, random effect is nested project, label, and method
+
+# For 0-10 cm stocks
+method_broad_0to10_lmer <- lmer(soc_0to10 ~ method + (1|project/label) + (1|ref_stat) + (1|ref_data), data = esm_stock_compare)
+summary(method_broad_0to10_lmer)
+
+# Is reference data choice significant overall?
+drop1(lmer(soc_0to10 ~ method + (1|project/label) + (1|ref_stat) + (1|ref_data), 
+           data = esm_stock_compare, REML=FALSE), test = "Chisq")
+
+# For 0-30 cm stocks
+method_broad_0to30_lmer <- lmer(soc_0to30 ~ method + (1|project/label) + (1|ref_stat) + (1|ref_data), data = esm_stock_compare)
+summary(method_broad_0to30_lmer)
+
+# Is reference data choice significant overall?
+drop1(lmer(soc_0to30 ~ method + (1|project/label) + (1|ref_stat) + (1|ref_data), 
+           data = esm_stock_compare, REML=FALSE), test = "Chisq")
+
+# For 0-100 cm stocks
+method_broad_0to100_lmer <- lmer(soc_0to100 ~ method + (1|project/label) + (1|ref_stat) + (1|ref_data), data = esm_stock_compare)
+summary(method_broad_0to100_lmer)
+
+# Is reference data choice significant overall?
+drop1(lmer(soc_0to100 ~ method + (1|project/label) + (1|ref_stat) + (1|ref_data), data = esm_stock_compare, REML=FALSE), test = "Chisq")
+```
+When accounting for variation in project/treatment, reference statistic used, and reference data source used, there is overall no significant difference between ESM and FD in any depth examined.
+
+## Effect of reference data source
+
+Test specifically for significant differences due to reference data source using linear mixed model:
+
+```{r lme for effect of reference data choice on SOC stocks}
+# Fixed effect is reference data choice, random effect is nested project, label, and method
+
+# For 0-10 cm stocks
+esm_ref_data_0to10_lmer <- lmer(soc_0to10 ~ ref_data + (1|project/label/method_long), data = esm_stock_compare)
+summary(esm_ref_data_0to10_lmer)
+
+# Is reference data choice significant overall?
+drop1(lmer(soc_0to10 ~ ref_data + (1|project/label/method_long), data = esm_stock_compare, REML=FALSE), test = "Chisq")
+
+# For 0-30 cm stocks
+esm_ref_data_0to30_lmer <- lmer(soc_0to30 ~ ref_data + (1|project/label/method_long), data = esm_stock_compare)
+summary(esm_ref_data_0to30_lmer)
+
+# Is reference data choice significant overall?
+drop1(lmer(soc_0to30 ~ ref_data + (1|project/label/method_long), data = esm_stock_compare, REML=FALSE), test = "Chisq")
+
+# For 0-100 cm stocks
+esm_ref_data_0to100_lmer <- lmer(soc_0to100 ~ ref_data + (1|project/label/method_long), data = esm_stock_compare)
+summary(esm_ref_data_0to100_lmer)
+
+# Is reference data choice significant overall?
+drop1(lmer(soc_0to100 ~ ref_data + (1|project/label/method_long), data = esm_stock_compare, REML=FALSE), test = "Chisq")
+```
+
+When accounting for variation due to project, label, and other method choices (ESM vs fixed depth, summary statistic), choice of reference data source (all data or individual project) significantly influences calculated SOC stocks only for 0-30 cm depth.
+
+## Effect of reference summary statistic
+
+Test specifically for significant differences due to ref_stat using linear mixed model:
+
+```{r lme for effect of ref_stat on SOC stocks}
+# Fixed effect is ref_stat, random effects are nested project/label, method, and ref_data
+
+# For 0-10 cm stocks
+ref_stat_0to10_lmer <- lmer(soc_0to10 ~ ref_stat + (1|project/label) + (1|method) + (1|ref_data), data = esm_stock_compare)
+summary(ref_stat_0to10_lmer)
+
+# Is reference data choice significant overall?
+drop1(lmer(soc_0to10 ~ ref_stat + (1|project/label) + (1|method) + (1|ref_data), 
+           data = esm_stock_compare, REML=FALSE), test = "Chisq")
+
+# Significantly different pairs
+summary(glht(ref_stat_0to10_lmer, linfct = mcp(ref_stat = 'Tukey')))
+tidy(cld(glht(ref_stat_0to10_lmer, linfct = mcp(ref_stat = 'Tukey'))))
+
+# For 0-30 cm stocks
+ref_stat_0to30_lmer <- lmer(soc_0to30 ~ ref_stat + (1|project/label) + (1|method) + (1|ref_data), data = esm_stock_compare)
+summary(ref_stat_0to30_lmer)
+
+# Is reference data choice significant overall?
+drop1(lmer(soc_0to30 ~ ref_stat + (1|project/label) + (1|method) + (1|ref_data), 
+           data = esm_stock_compare, REML=FALSE), test = "Chisq")
+
+# Significantly different pairs
+summary(glht(ref_stat_0to30_lmer, linfct = mcp(ref_stat = 'Tukey')))
+
+# For 0-100 cm stocks
+ref_stat_0to100_lmer <- lmer(soc_0to100 ~ ref_stat + (1|project/label) + (1|method) + (1|ref_data), data = esm_stock_compare)
+summary(ref_stat_0to100_lmer)
+
+# Is reference data choice significant overall?
+drop1(lmer(soc_0to100 ~ ref_stat + (1|project/label) + (1|method) + (1|ref_data), 
+           data = esm_stock_compare, REML=FALSE), test = "Chisq")
+
+# Significantly different pairs
+summary(glht(ref_stat_0to100_lmer, linfct = mcp(ref_stat = 'Tukey')))
+```
+Reference summary statistic choice does drive significant differences in SOC stocks. In the 0-10 cm and 0-30 cm depths, no ESM method is significantly different from fixed depth. However, min, mean, and max are all significantly different from each other. In 0-100 cm depth, min, mean, and max are all significantly different from each other, and max and fd are significantly different from each other. 
+
+# Other issues with ESM(all)
+
+## Depth of data used
+
+```{r comparison of depths for just cubic spline}
+
+esm_all_depth_plot <- esm_all_clean %>%
+  mutate(apparent_depth = str_remove(apparent_depth, " cm")) %>%
+  separate_wider_delim(apparent_depth, delim="-", names=c("apparent_top_depth", "apparent_bottom_depth")) %>%
+  mutate(apparent_bottom_depth = -(as.numeric(apparent_bottom_depth))) %>%
+  filter(depth_increments=="standard", method=="esm2")
+
+# Save plots for supplement
+purrr::map(.x = projects,
+           .f = ~{
+             esm_all_depth_plot %>% 
+               filter(project==.x) %>%
+               ggplot(aes(x=ref_stat, y=depth, fill=ref_data)) +
+               geom_boxplot() +
+               geom_hline(aes(yintercept = apparent_bottom_depth), linetype="dashed") +
+               facet_wrap(~layer, scales="free_y", labeller=labeller(layer=depth_labels2)) +
+               labs(x="Reference Summary Statistic",
+                    y="Physical bottom soil depth used for\ncubic spline ESM calculations (cm)", 
+                    title=glue::glue({filter(project_labels_esm_df, rowname==.x)$project_labels_esm})) +
+               scale_x_discrete(labels=c(expression("ESM"["max"]), expression("ESM"["mean"]), expression("ESM"["min"]))) +
+               scale_fill_paletteer_d("nationalparkcolors::Arches", 
+                                      name="Reference Data Source", 
+                                      labels=c("Entire DSP4SH dataset", "Individual project")) +
+               theme_classic() +
+               theme(axis.text.x=element_text(angle=45, hjust=1))
+             
+              ggsave(here("figs", "ms_figs", glue::glue("suppfig_depth_plot_", .x, ".png")), 
+                                              width=10, height=10, units="in", dpi=400)
+           })
+
+# Save as object 
+depth_plots_all <- purrr::map(.x = projects,
+           .f = ~{
+             esm_all_depth_plot %>% 
+               filter(project==.x) %>%
+               ggplot(aes(x=ref_stat, y=depth, fill=ref_data)) +
+               geom_boxplot(fatten=1.5, lwd=0.3, outlier.size=0.8) +
+               geom_hline(aes(yintercept = apparent_bottom_depth), linetype="dashed") +
+               facet_wrap(~layer, scales="free_y", labeller=labeller(layer=depth_labels2)) +
+               labs(x="Reference Summary Statistic",
+                    y="Physical bottom soil depth used for\ncubic spline ESM calculations (cm)", 
+                    title=glue::glue({filter(project_labels_esm_df, rowname==.x)$project_labels_esm})) +
+               scale_x_discrete(labels=c(expression("ESM"["max"]), expression("ESM"["mean"]), expression("ESM"["min"]))) +
+               scale_fill_paletteer_d("nationalparkcolors::Arches", 
+                                      name="Reference Data Source", 
+                                      labels=c("Entire DSP4SH dataset", "Individual project")) +
+               theme_katy() +
+               theme(axis.text.x=element_text(angle=45, hjust=1))
+           })
+
+# everything plotted together with no separation by project
+ggplot(esm_all_depth_plot, aes(x=ref_stat, y=depth, fill=ref_data)) +
+  geom_boxplot() +
+  geom_hline(aes(yintercept = apparent_bottom_depth), linetype="dashed") +
+  facet_wrap(~layer, scales="free_y", labeller=labeller(layer=depth_labels2)) +
+  labs(x="Reference Summary Statistic",
+       y="Physical bottom soil depth used\nfor cubic spline ESM calculations (cm)") + 
+  scale_x_discrete(labels=c(expression("ESM"["max"]), expression("ESM"["mean"]), expression("ESM"["min"]))) +
+  scale_fill_paletteer_d("nationalparkcolors::Arches", 
+                         name="Reference Data Source", 
+                         labels=c("Entire DSP4SH dataset", "Individual project")) +
+  theme_classic() +
+  theme(plot.title=element_text(hjust=0.5))
+ggsave(here("figs", "ms_figs", "suppfig9_depth_plot.png"), 
+       width=10, height=10, units="in", dpi=400)
+```
+
+Plot with just Washington State and TAM for manuscript:
+
+```{r Figure 3 - influence of reference mass data source on soil depths used - Wash and TAM projects only}
+
+depth_plots_all[[5]] / depth_plots_all[[8]] + plot_layout(axes="collect", guides="collect")
+
+ggsave(here("figs", "ms_figs", "fig3_depth_plots_wsu_tam1.pdf"),
+       width=160, height=200, units="mm",dpi=1000)
+```
+
+## Observed differences between management conditions
+
+We will focus on standard depth increments here because we know there is no significant difference in SOC stocks based on depth increment method selection, and standard depth increments are easier to compare between projects.
+
+First, we will examine how ESM method selection influences our ability to detect management effects in total SOC stocks.
+
+Run linear mixed models for each method/depth combination and extract significance:
+
+```{r lme for management effect on total SOC stocks in each method/depth combination}
+# Make a big ol' nested dataframe with the mixed effects models, significance test for model, significance letters, and tidy model output
+esm_group_comp <- esm_stock_compare_longer %>%
+  group_by(ref_data, method_long, method_longest, depth) %>%
+  nest() %>%
+  mutate(lmer = purrr::map(data, ~lmer(soc ~ label + (1|project), data = .x)),
+  drop1 = purrr::map(data, .f = ~{
+    drop1(lmer(soc ~ label + (1|project), REML=FALSE, data = .x))
+    }),
+  letters = purrr::map(lmer, .f = ~{
+    glht <- glht(.x, linfct = mcp(label = "Tukey"))
+    cld <- cld(glht)
+    tidy(cld)
+    }),
+  tidy_lmer = purrr::map(lmer, broom.mixed::tidy),
+  tidy_drop = purrr::map(drop1, broom.mixed::tidy)) 
+
+# Extract table of F-values and p-values for each method
+mgmt_lmer_table <- esm_group_comp %>%
+  select(method_longest, method_long, ref_data, depth, tidy_lmer, tidy_drop) %>%
+  unnest(cols=c(tidy_lmer, tidy_drop), names_sep="_") %>%
+  mutate(sig = case_when(tidy_drop_p.value < 0.05 ~ "significant",
+                         tidy_drop_p.value > 0.05 ~ "not_significant")) %>%
+  select(method_longest, depth, tidy_drop_statistic, tidy_drop_p.value, sig) %>%
+  distinct() %>%
+  mutate(across(where(is.numeric), ~round(.x, 2)))
+
+flextable(mgmt_lmer_table)
+write_csv(mgmt_lmer_table, here("figs", "ms_figs", "method_mgmt_lmer.csv"))
+
+# Extract significantly different management groups for each method
+mgmt_cld_table <- esm_group_comp %>%
+  select(method_longest, method_long, ref_data, depth, letters) %>%
+  unnest(cols=c(letters))
+
+write_csv(mgmt_cld_table, here("figs", "ms_figs", "method_mgmt_cld.csv"))
+```
+
+All methods detect significant between-group differences in all depths (0-10 cm, 0-30 cm, and 0-100 cm).
+
+Make plots showing SOC stocks by management treatment:
+
+```{r Figure S16 - management impacts all data}
+
+# figure with all data, no separation by project
+ggplot(esm_stock_compare_longer, aes(x=method_longest, y=soc, fill=label)) +
+  geom_boxplot() +
+  facet_grid(ref_data~depth, scales="free", labeller=labeller(depth=stock_depth_labels)) +
+  scale_x_discrete(labels=method_labels) +
+  scale_fill_manual(values=c("#FED789FF","#72874EFF","#476F84FF"),
+                     breaks=c("BAU", "SHM", "Ref"), 
+                    name="Management\ncondition") +
+  labs(x="Reference data source", y="SOC Stock (Mg/ha)") +
+  theme_classic() +
+  theme(axis.text.x=element_text(hjust=1, angle=45))
+ggsave(here("figs", "ms_figs", "fig4_stock_mgmt.png"),
+       width=9, height=6.5, dpi=400)
+```
+
+```{r figure 4 - soc stocks by management with WashState and TAM data}
+
+# Save figures for supplement
+purrr::map(.x = projects,
+           .f = ~{
+             esm_stock_compare_longer %>%
+               filter(project==.x, ref_data!="all_data") %>%
+               ggplot(aes(x=method_longest, y=soc)) +
+               geom_boxplot(aes(fill=label)) +
+               facet_wrap(~depth, scales="free", labeller=labeller(depth=stock_depth_labels)) +
+               scale_x_discrete(labels=method_labels) +
+               scale_fill_manual(values=c("#FED789FF","#72874EFF","#476F84FF"),
+                                 breaks=c("BAU", "SHM", "Ref"),
+                                 name="Management\ncondition") +
+               labs(x="Reference data source", y="SOC Stock (Mg/ha)",
+                    title=glue::glue({filter(project_labels_esm_df, rowname==.x)$project_labels_esm})) +
+               theme_classic() +
+               theme(axis.text.x=element_text(hjust=1, angle=45))
+             
+             ggsave(here("figs", "ms_figs", glue::glue("suppfig_soc_mgmt_", .x, ".png")), 
+                                              width=7.75, height=6.5, units="in", dpi=400)
+                               })
+# And save as object 
+stock_mgmt_plots <- purrr::map(.x = projects,
+                               .f = ~{
+                                 esm_stock_compare_longer %>%
+                                   filter(project==.x, ref_data!="all_data") %>%
+                                   ggplot(aes(x=method_longest, y=soc)) +
+                                   geom_boxplot(fatten=1.5, lwd=0.3, outlier.size=0.8, aes(fill=label)) +
+                                   facet_wrap(~depth, scales="free", labeller=labeller(depth=stock_depth_labels)) +
+                                   scale_x_discrete(labels=method_labels) +
+                                   scale_fill_manual(values=c("#FED789FF","#72874EFF","#476F84FF"),
+                                                     breaks=c("BAU", "SHM", "Ref"),
+                                                     name="Management\ncondition") +
+                                   labs(x="Reference data source", y="SOC Stock (Mg/ha)",
+                                        title=glue::glue({filter(project_labels_esm_df, rowname==.x)$project_labels_esm})) +
+                                   theme_katy() +
+                                   theme(axis.text.x=element_text(hjust=1, angle=45))
+                               })
+
+
+stock_mgmt_plots[[5]] / stock_mgmt_plots[[8]] + plot_layout(axes="collect", guides="collect")
+
+ggsave(here("figs", "ms_figs", "fig4_soc_mgmt_wsu_tam1.pdf"),
+       width=150, height=150, unit="mm", dpi=1000)
+
+```
+
+# Misc analyses and figures for supplement
+
+## Mean bulk density data for each project/depth/treatment:
+
+```{r Fig S23 - bulk density}
+bd <- soc_horizon %>%
+  select(project, label, dsp_pedon_id, dsp_sample_id, hrzdep_t, hrzdep_b, bd_fill)
+
+# promote to SPC and dice into 1-cm increments
+spc <- bd
+aqp::depths(spc) <- dsp_pedon_id ~ hrzdep_t + hrzdep_b
+
+dice <- aqp::dice(spc, fm=0:99 ~ bd_fill + project + label)
+dice_bd <- horizons(dice)
+
+depth <- c(10, 30, 50, 75, 100)
+
+# Initialize output vector
+out <- vector("list", length(depth))
+
+for (i in seq_along(depth)) {
+    if (i == 1) {
+      out[[i]] <- dice_bd %>%
+        filter(hrzdep_t < depth[[i]]) %>%
+        group_by(dsp_pedon_id) %>%
+        dplyr::summarize(depth_wt_bd = mean(bd_fill)) %>%
+        mutate(depth_cat = depth[[i]])
+      
+    } else {
+      out[[i]] <- dice_bd %>%
+        filter(hrzdep_t >=depth[[i-1]] & hrzdep_t < depth[[i]]) %>%
+        group_by(dsp_pedon_id) %>%
+        dplyr::summarize(depth_wt_bd = mean(bd_fill)) %>%
+        mutate(depth_cat = depth[[i]])
+    }
+}
+
+out_bind <- dplyr::bind_rows(out)
+
+bd_depth <- out_bind %>%
+  left_join(select(project, project, label, dsp_pedon_id), by="dsp_pedon_id") %>%
+  filter(project!="UTRGV", project!="TexasA&MPt-2") %>%
+  rename(layer = depth_cat) %>%
+  mutate(depth = case_when(layer == "10" ~ "0-10 cm",
+                           layer == "30" ~ "10-30 cm",
+                           layer == "50" ~ "30-50 cm",
+                           layer == "75" ~ "50-75 cm",
+                           layer == "100" ~ "75-100 cm"))
+
+mean_bd_depth <- bd_depth %>%
+  group_by(project, label) %>%
+  summarize(bd_mean = round(mean(depth_wt_bd, na.rm=TRUE), 2))
+
+# Plot bulk density for each project/treatment
+ggplot(bd_depth, aes(x=depth, y=depth_wt_bd, fill=label)) +
+  geom_boxplot() +
+  facet_wrap(~project, scales="free_y", labeller=labeller(project=project_labels_esm)) +
+  scale_fill_manual(values=c("#FED789FF","#72874EFF","#476F84FF"),
+                     breaks=c("BAU", "SHM", "Ref"), 
+                    name="Management\ncondition") +
+  labs(x="Depth", y=expression("Bulk density"~(g ~ cm^-3))) +
+  theme_classic() +
+  theme(axis.text.x=element_text(hjust=1, angle=45))
+ggsave(here("figs", "ms_figs", "bulk_density.png"),
+       width=8, height=6, dpi=400)
+```
+
+## Map of DSP4SH project locations
+
+```{r fig s1 - map of project locations}
+# Make data for plotting
+dsp4sh_esm_map_data <- project %>%
+  filter(project!="TexasA&MPt-2", project!="UTRGV") %>%
+  group_by(project, label) %>%
+  mutate(avg_lat = mean(pedon_y, na.rm=TRUE),
+         avg_long = mean(pedon_x, na.rm=TRUE)) %>%
+  distinct(project, label, avg_lat, avg_long)
+
+dsp4sh_esm_map_labels <- dsp4sh_esm_map_data %>%
+  filter(label=="BAU") %>%
+  mutate(project_label = case_when(project == "UnivOfMinnesota" ~ "University of Minnesota",
+                    project == "WashingtonState" ~ "Washington State",
+                    project == "TexasA&MPt-1" ~ "Texas A&M",
+                    project == "NCState" ~ "North Carolina State",
+                    project == "Illinois" ~ "University of Illinois",
+                    project == "OregonState" ~ "Oregon State",
+                    project == "KansasState" ~ "Kansas State",
+                    project == "UConn" ~ "University of Connecticut"))
+
+# Download map of USA from maps() and convert to sf
+usa <- st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
+
+# Make map
+ggplot(data=usa) +
+  geom_sf(fill=NA) +
+  coord_sf(xlim=c(-125.0, -66.93457), ylim=c(23.5, 49.384358)) + # set bounding box around CONUS
+  annotation_north_arrow(location="bl", which_north="true", height=unit(.25, "in"), width=unit(.25, "in"),
+                         pad_x = unit(0.4, "in"), pad_y = unit(0.25, "in"), 
+                         style=north_arrow_fancy_orienteering) + # add north arrow
+  annotation_scale(location = "bl") +
+  geom_point(data=dsp4sh_esm_map_data, aes(x=avg_long, y=avg_lat, color=project)) +
+  geom_label_repel(data=dsp4sh_esm_map_labels, aes(x=avg_long, y=avg_lat, label=project_label),
+                   min.segment.length = 0, seed = 42, box.padding = 0.5) +
+  scale_color_paletteer_d("rcartocolor::Safe", name="Project") +
+  theme_classic() +
+  easy_remove_axes() +
+  theme(legend.position="none")
+ggsave(here("figs", "ms_figs", "figs1_project_map.png"), height=5, width=8, units="in", dpi=400)
+```
+# ARCHIVE
+
+## Does using ESM(all) contribute to error?
+
+```{r calculate and plot within-layer CV}
+# calculate CV for each layer within each project/management group
+depth_comp_error <- esm_all_clean %>%
+  filter(depth_increments=="standard") %>%
+  group_by(project, label, ref_data, method_long, layer) %>%
+  summarize(layer_cv = round(((sd(soc, na.rm=TRUE) / mean(soc, na.rm=TRUE))* 100), 2))
+
+# Plot CVs
+ggplot(depth_comp_error, aes(y=layer_cv, x=method_long, fill=ref_data)) +
+  geom_boxplot() +
+  facet_grid(project~layer, scales="free_y") +
+  labs(x="SOC stock calculation method", y="Layer Coefficient of Variation") +
+  scale_fill_paletteer_d("nationalparkcolors::Arches", name="Depth Increments") +
+  theme_classic()
+```
+
+This figure is small and hard to interpret but overall I am pretty sure it shows that the within-layer CVs are pretty much the same whether SOC stocks are calculated using all data as a reference or just project data.
+
+Try pulling out just one project to be able to see better:
+
+```{r plot CV vs. calculation method and depth increment for Illinois project only, echo=FALSE}
+ggplot(depth_comp_error %>% filter(project=="Illinois"), aes(y=layer_cv, x=method_long, fill=ref_data)) +
+  geom_boxplot() +
+  facet_wrap(~layer, scales="free_y") +
+  labs(x="SOC stock calculation method", y="Layer Coefficient of Variation", title="Illinois") +
+  scale_fill_paletteer_d("nationalparkcolors::Arches", name="Reference mass data source") +
+  theme_classic() +
+  theme(axis.text.x=element_text(angle=45, hjust=1))
+```
+
+This doesn't look particularly different? We can better explore patterns in CV using a linear mixed model.
+
+```{r lme for within-layer cv vs calculation method and depth increment}
+depth_comp_lmer <- lmer(layer_cv ~ method_long + ref_data + (1|project/label/layer), data = depth_comp_error)
+summary(depth_comp_lmer)
+
+# Is method or reference data source significant overall?
+drop1(lmer(layer_cv ~ method_long + ref_data + (1|project/label/layer), data = depth_comp_error, REML=FALSE), test = "Chisq")
+
+```
+
+Neither ESM method nor reference data source significantly influence within-layer CV.
