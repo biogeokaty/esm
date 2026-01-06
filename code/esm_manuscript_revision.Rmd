@@ -124,7 +124,10 @@ theme_katy <- function(base_size=8) {
       legend.title=element_text(size=rel(1)), legend.text=element_text(size=rel(.8)),
       #axes                      
       axis.text=element_text(size=rel(.8)),
-      axis.title=element_text(size=rel(1)))
+      axis.title=element_text(size=rel(1)),
+      axis.line=element_line(linewidth=0.25),
+      axis.ticks=element_line(linewidth=0.25),
+      strip.background=element_rect(linewidth=0.3),)
 }
 ```
 
@@ -277,16 +280,16 @@ mean_bd_depth <- bd_depth %>%
 ```{r fig s2 plot bulk density by depth increment}
 # Plot bulk density for each project/treatment
 ggplot(bd_depth, aes(x=depth, y=depth_wt_bd, fill=label)) +
-  geom_boxplot(fatten=1.5, lwd=0.3) +
+  geom_boxplot(fatten=1.6, lwd=0.25, outlier.size=0.6) +
   facet_wrap(~project, scales="free_y", labeller=labeller(project=project_labels_esm)) +
   scale_fill_manual(values=c("#FED789FF","#72874EFF","#476F84FF"),
                      breaks=c("BAU", "SHM", "Ref"), 
                     name="Management") +
   labs(x="Depth", y=expression("Bulk density"~(g ~ cm^-3))) +
-  theme_classic() +
+  theme_katy() +
   theme(axis.text.x=element_text(hjust=1, angle=45))
 
-# ggsave(here("figs", "revision_figs", "figsupp2_bulk_density.png"), width=200, height=160, units="mm", dpi=400)
+# ggsave(here("figs", "revision_figs", "figsupp2_bulk_density.png"), width=140, height=100, units="mm", dpi=400)
 ```
 
 ```{r min max bulk density for text}
@@ -341,18 +344,18 @@ mean_ref_mass <- esm %>%
 cust_labeller <- function(x) paste0("ESM Depth: ", x)
 
 ggplot(esm %>% filter(method!="fd"), aes(x=project, y=soil_mass, fill=method)) +
-  geom_boxplot() +
-  facet_wrap(~esm_depth, scales="free", labeller=as_labeller(cust_labeller)) +
+  geom_boxplot(fatten=1.6, lwd=0.25, outlier.size=0.6) +
+  facet_wrap(~esm_depth, scales="free_y", labeller=as_labeller(cust_labeller)) +
   scale_fill_paletteer_d("nationalparkcolors::Arches",
                          name="Calculation method") + 
   labs(x="DSP4SH project", y="Reference soil mass (Mg/ha)") +
   scale_x_discrete(labels=project_labels_esm) +
-  theme_classic() +
+  theme_katy() +
     theme(axis.text.x=element_text(angle=45, hjust=1),
-        legend.position="none")
+          legend.position="none")
 
-# ggsave(here("figs", "revision_figs", "fig2_soil_mass.png"), width=180, height=160, units="mm", dpi=400)
-# ggsave(here("figs", "revision_figs", "fig2.pdf"), width=180, height=160, units="mm", dpi=400)
+# ggsave(here("figs", "revision_figs", "fig2_soil_mass.png"), width=110, height=100, units="mm", dpi=400)
+# ggsave(here("figs", "revision_figs", "fig2.pdf"), width=110, height=100, units="mm", dpi=400)
 ```
 
 ```{r table of reference masses for text}
@@ -453,8 +456,8 @@ fig2_letters_position <- esm %>%
 
 ggplot(esm, aes(x=method_longest, y=soc_cum, fill=method_longest)) +
   geom_point(aes(color=method_longest), position = "jitter", alpha=0.8) +
-  geom_boxplot(outlier.shape=NA) +
-  geom_text(data=fig2_letters_position, aes(y=max_soc_cum + 30, x=method_longest, label=letters), size=3) +
+  geom_boxplot(fatten=1.6, lwd=0.25, outlier.shape=NA) +
+  geom_text(data=fig2_letters_position, aes(y=max_soc_cum + 30, x=method_longest, label=letters), size=2) +
   labs(x="Calculation method", y="Cumulative SOC stock (Mg/ha)") +
   facet_wrap(~depth_std, labeller=labeller(depth_std=cum_depth_labels)) +
   scale_x_discrete(labels=method_labels) +
@@ -462,12 +465,12 @@ ggplot(esm, aes(x=method_longest, y=soc_cum, fill=method_longest)) +
                           name="Calculation method") + 
   scale_fill_paletteer_d("nationalparkcolors::Arches",
                           name="Calculation method") + 
-  theme_classic() +
+  theme_katy() +
   theme(axis.text.x=element_text(angle=45, hjust=1),
         legend.position="none")
 
-# ggsave(here("figs", "revision_figs", "fig3_soc_cum_all.png"), width=160, height=120, units="mm", dpi=400)
-# ggsave(here("figs", "revision_figs", "fig3.pdf"), width=160, height=120, units="mm", dpi=400)
+# ggsave(here("figs", "revision_figs", "fig3_soc_cum_all.png"), width=120, height=100, units="mm", dpi=400)
+# ggsave(here("figs", "revision_figs", "fig3.pdf"), width=120, height=100, units="mm", dpi=400)
 ```
 
 # How does calculation method influence management sensitivity?
@@ -546,13 +549,13 @@ mgmt_letters_df <- esm %>%
   mutate(label = factor(label, levels=c("BAU", "SHM", "Ref")))
 
 ggplot(esm, aes(x=method_longest, y=soc_cum, fill=label)) +
-  geom_point(aes(color=label), pch = 21, position=position_jitterdodge(), alpha=0.8) +
-  geom_boxplot(outlier.shape=NA) +
+  geom_point(aes(color=label), pch = 21, position=position_jitterdodge(), alpha=0.8, size=0.7) +
+  geom_boxplot(fatten=1.6, lwd=0.25, outlier.shape=NA) +
   scale_x_discrete(labels=method_labels) +
   facet_wrap(~depth_std, scales="free", labeller=labeller(depth_std=cum_depth_labels)) +
   geom_text(data=mgmt_letters_df, 
             aes(y=max_soc_cum + 25, label=letters, group=label), 
-            color="black", position=position_dodge(width=0.8), size=3) +
+            color="black", position=position_dodge(width=0.8), size=2) +
   labs(x="Calculation method", y="Cumulative SOC (Mg/ha)") +
   scale_fill_manual(values=c("#FED789FF","#72874EFF","#476F84FF"),
                     breaks=c("BAU", "SHM", "Ref"), 
@@ -560,11 +563,11 @@ ggplot(esm, aes(x=method_longest, y=soc_cum, fill=label)) +
   scale_color_manual(values=c("#FED789FF","#72874EFF","#476F84FF"),
                      breaks=c("BAU", "SHM", "Ref"), 
                      name="Management") +
-  theme_classic() +
+  theme_katy() +
   theme(axis.text.x=element_text(angle=45, hjust=1))
 
-# ggsave(here("figs", "revision_figs", "fig4_soc_mgmt.png"), width=180, height=160, units="mm", dpi=400)
-# ggsave(here("figs", "revision_figs", "fig4.pdf"), width=180, height=160, units="mm", dpi=400)
+ggsave(here("figs", "revision_figs", "fig4_soc_mgmt.png"), width=120, height=100, units="mm", dpi=400)
+ggsave(here("figs", "revision_figs", "fig4.pdf"), width=120, height=100, units="mm", dpi=400)
 ```
 
 # Calculation method influence on SOC sequestration
@@ -644,10 +647,10 @@ diff_cum_letters_position <- esm_diff %>%
   left_join(diff_cum_method_cld_table, by=c("depth_std", "label", "method_longest"))
 
 ggplot(esm_diff, aes(x=method_longest, y=diff_soc_cum, fill=method_longest)) +
-  geom_point(aes(color=method_longest), pch=21, position="jitter", alpha=0.8) +
-  geom_boxplot(outlier.shape=NA) +
-  geom_abline(intercept=0, slope=0, linetype="dashed") +
-  geom_text(data=diff_cum_letters_position, aes(y=max_diff_soc_cum + 25, label=letters), size=3) +
+  geom_point(aes(color=method_longest), pch=21, position="jitter", alpha=0.8, size=0.8) +
+  geom_boxplot(fatten=1.6, lwd=0.25, outlier.shape=NA) +
+  geom_abline(intercept=0, slope=0, linetype="dashed", linewidth=0.3) +
+  geom_text(data=diff_cum_letters_position, aes(y=max_diff_soc_cum + 25, label=letters), size=2) +
   labs(x="Calculation method", y="SOC stock difference vs BAU (Mg/ha)") +
   facet_grid(depth_std~label, scales="free", labeller=labeller(depth_std=cum_depth_labels)) +
   scale_x_discrete(labels=method_labels) +
@@ -655,12 +658,12 @@ ggplot(esm_diff, aes(x=method_longest, y=diff_soc_cum, fill=method_longest)) +
                          name="Calculation method") + 
   scale_color_paletteer_d("nationalparkcolors::Arches",
                          name="Calculation method") + 
-  theme_classic() +
+  theme_katy() +
   theme(axis.text.x=element_text(angle=45, hjust=1),
         legend.position="none")
 
-# ggsave(here("figs", "revision_figs", "fig5_soc_diff.png"), width=180, height=170, units="mm", dpi=400)
-# ggsave(here("figs", "revision_figs", "fig5.pdf"), width=180, height=170, units="mm", dpi=400)
+# ggsave(here("figs", "revision_figs", "fig5_soc_diff.png"), width=120, height=100, units="mm", dpi=400)
+# ggsave(here("figs", "revision_figs", "fig5.pdf"), width=120, height=100, units="mm", dpi=400)
 ```
 
 # Check that ESM calculations worked and make sense
