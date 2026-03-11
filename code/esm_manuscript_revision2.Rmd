@@ -23,6 +23,7 @@ library(flextable)
 library(patchwork)
 library(multcomp)
 library(multcompView)
+library(PNWColors)
 library(tidyverse)
 
 # Data
@@ -273,7 +274,7 @@ bd_depth <- out_bind %>%
          project = factor(project, levels=project_plotting_order))
 
 mean_bd_depth <- bd_depth %>%
-  group_by(project, label) %>%
+  group_by(project, label, depth) %>%
   dplyr::summarize(bd_mean = round(mean(depth_wt_bd, na.rm=TRUE), 2))
 ```
 
@@ -331,6 +332,8 @@ bd_cv_table <- overall_treatment_cv %>%
   mutate(across(treatment_mean_cv:project_mean_cv, ~round(.x, 2))) %>%
   arrange(depth_std, label)
 
+flextable(bd_cv_table)
+
 # write_csv(bd_cv_table, here("figs", "revision_figs", "table1_bd_cv.csv"))
 ```
 
@@ -361,8 +364,9 @@ ggplot(esm %>% filter(method!="fd"), aes(x=project, y=soil_mass, fill=method)) +
 ```{r table of reference masses for text}
 ref_mass_table <- esm %>%
   group_by(depth_std) %>%
-  dplyr::summarize(min_mass = min(soil_mass),
-            max_mass = max(soil_mass))
+  dplyr::summarize(min_mass = round(min(soil_mass), 0),
+            max_mass = round(max(soil_mass), 0))
+flextable(ref_mass_table)
 ```
 
 # How does ESM choice influence total calculated SOC stocks?
@@ -537,6 +541,52 @@ flextable(tablesupp2)
 # write_csv(tablesupp2, here("figs", "revision_figs", "tablesupp3_mgmt.csv"))
 ```
 
+Try running just an ANOVA for simplicity
+
+```{r aov management}
+# anova on effect of management on cumulative SOC stocks
+mgmt_aov_df <- esm |> 
+  group_by(method_longest, depth_std) |> 
+  nest() |> 
+  mutate(aov = purrr::map(data, ~aov(soc_cum ~ label, data=.x)),
+         hsd = purrr::map(aov, TukeyHSD),
+         letters = purrr::map2(aov, hsd, ~multcompLetters4(.x, .y, reversed=TRUE)),
+         letters_df = purrr::map(letters, .f = ~{
+           data.frame(.x[[1]]$Letters) |> 
+             rownames_to_column() |> 
+             rename(label = rowname,
+                    letter = 2)
+         }) 
+  ) |> 
+  select(depth_std, letters_df) |> 
+  unnest(cols=letters_df)
+
+mgmt_aov_letters <- esm %>%
+  group_by(method_longest, depth_std) %>%
+  dplyr::summarize(max_soc_cum = max(soc_cum)) %>%
+  left_join(mgmt_aov_df, by=c("depth_std", "method_longest")) %>%
+  mutate(label = factor(label, levels=c("BAU", "SHM", "Ref")))
+
+ggplot(esm, aes(x=method_longest, y=soc_cum, fill=label)) +
+  geom_point(aes(color=label), pch = 21, position=position_jitterdodge(), alpha=0.8, size=0.7) +
+  geom_boxplot(fatten=1.6, lwd=0.25, outlier.shape=NA) +
+  scale_x_discrete(labels=method_labels) +
+  facet_wrap(~depth_std, scales="free", labeller=labeller(depth_std=cum_depth_labels)) +
+  geom_text(data=mgmt_aov_letters, 
+            aes(y=max_soc_cum + 25, label=letter, group=label), 
+            color="black", position=position_dodge(width=0.8), size=2) +
+  labs(x="Calculation method", y="Cumulative SOC (Mg/ha)") +
+  scale_fill_manual(values=c("#FED789FF","#72874EFF","#476F84FF"),
+                    breaks=c("BAU", "SHM", "Ref"), 
+                    name="Management") +
+  scale_color_manual(values=c("#FED789FF","#72874EFF","#476F84FF"),
+                     breaks=c("BAU", "SHM", "Ref"), 
+                     name="Management") +
+  theme_katy() +
+  theme(axis.text.x=element_text(angle=45, hjust=1))
+# ggsave(here("figs", "revision2_figs", "fig4_soc_mgmt_alt.png"), width=120, height=100, units="mm", dpi=400)
+```
+
 When accounting for differences in depth and project, all calculation methods result in SOC stocks that are highest in Ref condition, and lower in both SHM and BAU conditions.
 
 Plot actual differences due to management:
@@ -566,8 +616,8 @@ ggplot(esm, aes(x=method_longest, y=soc_cum, fill=label)) +
   theme_katy() +
   theme(axis.text.x=element_text(angle=45, hjust=1))
 
-ggsave(here("figs", "revision_figs", "fig4_soc_mgmt.png"), width=120, height=100, units="mm", dpi=400)
-ggsave(here("figs", "revision_figs", "fig4.pdf"), width=120, height=100, units="mm", dpi=400)
+# ggsave(here("figs", "revision_figs", "fig4_soc_mgmt.png"), width=120, height=100, units="mm", dpi=400)
+# ggsave(here("figs", "revision_figs", "fig4.pdf"), width=120, height=100, units="mm", dpi=400)
 ```
 
 # Calculation method influence on SOC sequestration
@@ -640,6 +690,42 @@ diff_cum_method_cld_table <- diff_cum_method_lmer %>%
 flextable(diff_cum_method_cld_table)
 ```
 
+```{r aov calc method dsoc}
+dsoc_aov_df <- esm_diff |> 
+  group_by(label, depth_std) |> 
+  nest() |> 
+  mutate(aov = purrr::map(data, ~aov(diff_soc_cum ~ method_longest, data=.x)),
+         hsd = purrr::map(aov, TukeyHSD),
+         letters = purrr::map2(aov, hsd, ~multcompLetters4(.x, .y, reversed=TRUE)),
+         letters_df = purrr::map(letters, .f = ~{
+           data.frame(.x[[1]]$Letters) |> 
+             rownames_to_column() |> 
+             rename(method_longest = rowname,
+                    letter = 2)
+         }) 
+  ) |> 
+  select(depth_std, letters_df) |> 
+  unnest(cols=letters_df)
+# no significant differences
+
+ggplot(esm_diff, aes(x=method_longest, y=diff_soc_cum, fill=method_longest)) +
+  geom_point(aes(color=method_longest), pch=21, position="jitter", alpha=0.8, size=0.8) +
+  geom_boxplot(fatten=1.6, lwd=0.25, outlier.shape=NA) +
+  geom_abline(intercept=0, slope=0, linetype="dashed", linewidth=0.3) +
+  labs(x="Calculation method", y=expression(Delta*"SOC vs BAU (Mg/ha)")) +
+  facet_grid(depth_std~label, scales="free", labeller=labeller(depth_std=cum_depth_labels)) +
+  scale_x_discrete(labels=method_labels) +
+  scale_fill_paletteer_d("nationalparkcolors::Arches",
+                         name="Calculation method") + 
+  scale_color_paletteer_d("nationalparkcolors::Arches",
+                         name="Calculation method") + 
+  theme_katy() +
+  theme(axis.text.x=element_text(angle=45, hjust=1),
+        legend.position="none")
+
+# ggsave(here("figs", "revision2_figs", "fig5_soc_diff_alt.png"), width=120, height=120, units="mm", dpi=400)
+```
+
 ```{r fig 5 plot actual differences in cumulative SOC stocks with different methods}
 diff_cum_letters_position <- esm_diff %>%
   group_by(method_longest, depth_std, label) %>%
@@ -651,7 +737,7 @@ ggplot(esm_diff, aes(x=method_longest, y=diff_soc_cum, fill=method_longest)) +
   geom_boxplot(fatten=1.6, lwd=0.25, outlier.shape=NA) +
   geom_abline(intercept=0, slope=0, linetype="dashed", linewidth=0.3) +
   geom_text(data=diff_cum_letters_position, aes(y=max_diff_soc_cum + 25, label=letters), size=2) +
-  labs(x="Calculation method", y="SOC stock difference vs BAU (Mg/ha)") +
+  labs(x="Calculation method", y=expression(Delta*"SOC vs BAU (Mg/ha)")) +
   facet_grid(depth_std~label, scales="free", labeller=labeller(depth_std=cum_depth_labels)) +
   scale_x_discrete(labels=method_labels) +
   scale_fill_paletteer_d("nationalparkcolors::Arches",
@@ -662,8 +748,260 @@ ggplot(esm_diff, aes(x=method_longest, y=diff_soc_cum, fill=method_longest)) +
   theme(axis.text.x=element_text(angle=45, hjust=1),
         legend.position="none")
 
-ggsave(here("figs", "revision_figs", "fig5_soc_diff.png"), width=120, height=120, units="mm", dpi=400)
-ggsave(here("figs", "revision_figs", "fig5.pdf"), width=120, height=120, units="mm", dpi=400)
+# ggsave(here("figs", "revision_figs", "fig5_soc_diff.png"), width=120, height=120, units="mm", dpi=400)
+# ggsave(here("figs", "revision_figs", "fig5.pdf"), width=120, height=120, units="mm", dpi=400)
+```
+# Can we calculate the error in the delta SOC associated with different methods?
+
+```{r delta soc error}
+# think we have to assume that something is the true value
+# let's say ESMproject,min - whatever is the lowest reference value is the true reference value
+# for each point, the error is the difference between delta SOC in that method and delta SOC with ESMproject,min
+
+true_delta_soc <- esm_diff |> 
+  filter(method_longest=="esm2_min_project") |> 
+  distinct() |> 
+  dplyr::select(project, dsp_pedon_id, layer, depth_std, diff_soc_cum) |> 
+  rename(true_delta_soc = diff_soc_cum)
+
+esm_error <- esm_diff |> 
+  left_join(true_delta_soc, by=c("project", "dsp_pedon_id", "layer", "depth_std")) |> 
+  mutate(delta_soc_error = diff_soc_cum - true_delta_soc,
+         abs_error = abs(delta_soc_error),
+         pct_error = abs((diff_soc_cum - true_delta_soc)/true_delta_soc)) |> 
+  filter(method_longest!="esm2_min_project")
+```
+
+Plot dSOC percent error for each method:
+
+```{r fig 6 delta soc error}
+# anova on effect of method on percent error
+dsoc_error_letters_df <- esm_error |> 
+  group_by(depth_std) |> 
+  nest() |> 
+  mutate(aov = purrr::map(data, ~aov(pct_error ~ method_longest, data=.x)),
+         hsd = purrr::map(aov, TukeyHSD),
+         letters = purrr::map2(aov, hsd, multcompLetters4),
+         letters_df = purrr::map(letters, .f = ~{
+           data.frame(.x[[1]]$Letters) |> 
+             rownames_to_column() |> 
+             rename(method_longest = rowname,
+                    letter = 2)
+         }) 
+  ) |> 
+  select(depth_std, letters_df) |> 
+  unnest(cols=letters_df)
+
+# calculate position
+dsoc_error_quant <- esm_error |> 
+  group_by(depth_std, method_longest) |> 
+  summarize(quant25 = quantile(pct_error, probs = 0.25), 
+            quant75 = quantile(pct_error, probs = 0.75)) |> 
+  mutate(iqr = quant75-quant25,
+         upr = quant75 + (1.5*iqr))
+
+dsoc_error_letters_df2 <- dsoc_error_letters_df |> 
+  left_join(dsoc_error_quant, by=c("method_longest", "depth_std"))
+
+esm_error_sub <- esm_error |> 
+  left_join(select(dsoc_error_quant, upr, depth_std, method_longest), by=c("depth_std", "method_longest")) |> 
+  filter(pct_error<=upr)
+
+ggplot(esm_error_sub, aes(x=method_longest, y=pct_error, fill=method_longest)) +
+  geom_point(aes(color=method_longest), pch=21, position="jitter", alpha=0.8, size=0.8) +
+  geom_boxplot(fatten=1.6, lwd=0.25, outliers=FALSE) +
+  geom_text(data=dsoc_error_letters_df2, aes(y=upr, label=letter), vjust=-0.2, size=8/.pt) +
+  labs(x="Calculation method", y=expression(Delta*"SOC percent error")) +
+  facet_wrap(~depth_std, scales="free", labeller=labeller(depth_std=cum_depth_labels)) +
+  scale_x_discrete(labels=method_labels) +
+  scale_y_continuous(labels = scales::percent,
+                     expand = expansion(mult = c(.05, .2))) +
+  scale_fill_paletteer_d("nationalparkcolors::Arches",
+                         name="Calculation method") +
+  scale_color_paletteer_d("nationalparkcolors::Arches",
+                          name="Calculation method") +
+  theme_katy() +
+  theme(axis.text.x=element_text(angle=45, hjust=1),
+        legend.position="none")
+# ggsave(here("figs", "revision2_figs", "dsoc_error.png"), width=120, height=120, units="mm", dpi=400)
+
+# try for each project
+purrr::map(.x = projects, 
+           .f = ~{
+             esm_error %>%
+               filter(project==.x) %>%
+               ggplot(aes(x=method_longest, y=pct_error, fill=method_longest)) +
+               geom_boxplot(fatten=1.6, lwd=0.25, outliers=FALSE) +
+               geom_abline(intercept=0, slope=0, linetype="dashed", linewidth=0.3) +
+                labs(x="Calculation method", y=expression(Delta*"SOC percent error"),
+                    title=glue::glue("error by calculation method - ", .x)) +
+               facet_wrap(~depth_std, labeller=labeller(depth_std=cum_depth_labels)) +
+               scale_x_discrete(labels=method_labels) +
+                 scale_y_continuous(labels = scales::percent) +
+               scale_fill_paletteer_d("nationalparkcolors::Arches",
+                                      name="Calculation method") + 
+               theme_classic() +
+               theme(axis.text.x=element_text(angle=45, hjust=1),
+                     legend.position="none")
+           })
+```
+
+Regress percent error against bulk density variability for project and treatment:
+
+```{r error regressions}
+# join error to bulk density
+esm_error2 <- esm_error |> 
+  dplyr::select(project, label, dsp_pedon_id, sample_id, method_longest, layer, depth_std, 
+                diff_soc_cum, true_delta_soc, delta_soc_error, abs_error, pct_error)
+
+bd2join <- bd_depth |> 
+  dplyr::select(-depth, -project, -label) |> 
+  rename(depth_std = layer)
+
+esm_error_bd <- esm_error2 |> 
+  left_join(bd2join, by=c("dsp_pedon_id", "depth_std"))
+
+ggplot(esm_error_bd, aes(x=depth_wt_bd, y=pct_error)) +
+  geom_point(aes(color=project)) +
+  geom_abline(intercept=0, slope=0, linetype="dashed", linewidth=0.3) +
+  geom_smooth(method="lm", color="navyblue") +
+  facet_wrap(~method_longest) +
+  scale_color_manual(values=pnw_palette("Sunset2", 9), name="Project") + 
+  theme_classic()
+```
+
+Maybe it's not the bulk density that matters, but the variability in the bulk density
+```{r bulk density cv vs delta soc error}
+esm_error_bd_cv <- esm_error_bd |> 
+  left_join(treatment_bd_cv, by=c("project", "label", "depth_std"))
+
+esm_error_bd_cv2 <- esm_error_bd_cv |> 
+  left_join(select(project_bd_cv, project, depth_std, cv_bd_project), by=c("project", "depth_std"))
+
+ggplot(esm_error_bd_cv, aes(x=cv_bd_treatment, y=pct_error)) +
+  geom_point(aes(color=project)) +
+  geom_abline(intercept=0, slope=0, linetype="dashed", linewidth=0.3) +
+  geom_smooth(method="lm", color="navyblue") +
+  facet_wrap(~method_longest) +
+  scale_color_manual(values=pnw_palette("Sunset2", 9), name="Project") + 
+  theme_classic()
+
+ggplot(esm_error_bd_cv2, aes(x=cv_bd_project, y=pct_error)) +
+  geom_point(aes(color=project)) +
+  geom_abline(intercept=0, slope=0, linetype="dashed", linewidth=0.3) +
+  geom_smooth(method="lm", color="navyblue") +
+  facet_grid(depth_std~method_longest) +
+  scale_color_manual(values=pnw_palette("Sunset2", 9), name="Project") + 
+  theme_classic()
+
+# or boxplot of errors with x axis as project ordered by bulk density CV
+# method x depth grid
+
+ggplot(esm_error_bd_cv2, 
+       aes(x=fct_reorder(project, cv_bd_project), y=pct_error, fill=method_longest)) +
+  geom_boxplot() +
+    scale_fill_paletteer_d("nationalparkcolors::Arches",
+                          name="Calculation method") + 
+  facet_wrap(~depth_std) +
+  theme_classic()
+
+ggplot(esm_error_bd_cv2, aes(x=cv_bd_project, y=pct_error)) +
+  geom_point(aes(color=method_longest)) +
+  geom_smooth(method="lm", color="navyblue") +
+  facet_wrap(~depth_std) +
+  scale_color_paletteer_d("nationalparkcolors::Arches",
+                          name="Calculation method") + 
+  theme_classic()
+```
+
+Try calculating the percent difference between an individual pedon's BD in each depth increment and the mean BAU depth increment BD for that project:
+
+```{r calculate pct diff bd}
+bd_mean_bau <- bd_depth |> 
+  select(-depth) |> 
+  rename(depth_std = layer) |> 
+  group_by(project, label, depth_std) |> 
+  summarize(bd_mean_bau = mean(depth_wt_bd)) |> 
+  filter(label=="BAU") |> 
+  ungroup() |> 
+  select(-label)
+
+bd_error <- bd_depth |> 
+  select(-depth) |> 
+  rename(depth_std = layer) |> 
+  filter(label!="BAU") |> 
+  left_join(bd_mean_bau, by=c("project", "depth_std")) |> 
+  mutate(abs_bd_error = abs(depth_wt_bd - bd_mean_bau),
+         pct_error_bd = abs_bd_error / bd_mean_bau)
+```
+
+```{r pct error dsoc vs pct error bd}
+esm_error_bd_error <- esm_error_bd_cv2 |> 
+  left_join(select(bd_error, dsp_pedon_id, depth_std, abs_bd_error, pct_error_bd), by=c("dsp_pedon_id", "depth_std")) |> 
+  mutate(abs_true_delta_soc = abs(true_delta_soc))
+
+ggplot(esm_error_bd_error, aes(x=pct_error_bd, y=pct_error)) +
+  geom_point(aes(color=project)) +
+  facet_wrap(~method_longest) +
+  labs(x ="bulk density - sample percent difference from BAU mean", y = expression(Delta*"SOC percent error")) +
+  scale_y_continuous(labels = scales::percent) +
+  scale_x_continuous(labels = scales::percent) +
+  facet_wrap(~method_longest, labeller = labeller(method_longest = method_labels2)) +
+  scale_color_manual(values=pnw_palette("Sunset2", 9), name="Project",
+                     labels = project_labels_esm) +  
+  theme_katy()
+# ggsave(here("figs", "revision2_figs", "figsupp3_pct_error_vs_bd_error.png"), width=120, height=85, units="mm", dpi=400)
+```
+
+Bulk density does not appear to be explaining percent error in dSOC particularly well. Let's look at something else - maybe the actual difference in SOC values? We might have bigger errors when the change in SOC is very small - then small differences between methods translate to big percent errors.
+
+```{r fig s3 percent error vs dsoc}
+# fit negative exponential with nls()
+# pull out the model info
+fitted <- esm_error_bd_error %>% 
+  select(project, abs_true_delta_soc, pct_error, method_longest) |> 
+  nest(data = -method_longest) %>%
+  mutate(
+    fit = purrr::map(data, ~nls(pct_error ~ a * abs_true_delta_soc ^ b,
+                                data = .x,
+                                start = list(a = 1, b = 1))),
+    tidied = purrr::map(fit, tidy),
+    augmented = purrr::map(fit, .f = ~{
+      .x |> 
+        augment() |> 
+        select(.fitted, .resid)
+    })
+  )  
+
+# get fitted values
+augmented <- fitted |> 
+  select(method_longest, augmented, data) |> 
+  unnest(cols=c(augmented, data))
+
+# get coefficient estimates
+models <- fitted |> 
+  select(method_longest, tidied) |> 
+  unnest(cols=tidied)  |> 
+  select(method_longest, term, estimate) |> 
+  pivot_wider(names_from = term, 
+              values_from = estimate)
+
+# plot against true delta SOC
+ggplot(augmented, aes(x=abs_true_delta_soc, y=pct_error)) +
+  geom_point(aes(color=project)) +
+  geom_smooth(aes(y = .fitted), se=FALSE) +
+  # geom_smooth(method = "nls", formula = y ~ a * x^b, 
+  #             se = FALSE, method.args = list(start = c(a = 1, b = 1))) +
+  geom_text(data=models, aes(x=100, y=100, label = glue::glue("y = {round(models$a, 2)} x^{round(models$b, 2)}")),
+             size=6/.pt) +
+  labs(x = expression(paste("| ", Delta, "SOC with ESM(project, min) |")), y = expression(Delta*"SOC percent error")) +
+  scale_y_continuous(labels = scales::percent) +
+  facet_wrap(~method_longest, labeller = labeller(method_longest = method_labels2)) +
+  scale_color_manual(values=pnw_palette("Sunset2", 9), name="Project",
+                     labels = project_labels_esm) +  
+  theme_katy()
+# ggsave(here("figs", "revision2_figs", "figsupp3_pct_error_vs_dsoc.png"), width=120, height=85, units="mm", dpi=400)
+# it's a negative exponential!!!
 ```
 
 # Check that ESM calculations worked and make sense
