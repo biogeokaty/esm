@@ -24,7 +24,6 @@ library(sf)
 library(ggspatial)
 library(ggeasy)
 library(ggrepel)
-library(flextable)
 library(patchwork)
 library(multcomp)
 library(multcompView)
@@ -357,16 +356,14 @@ Summary table for text:
 esm |> 
   group_by(depth_std) |> 
   dplyr::summarize(min_mass = round(min(soil_mass), 0),
-            max_mass = round(max(soil_mass), 0)) |> 
-  flextable()
+            max_mass = round(max(soil_mass), 0))
 
 # mean reference mass for each method/depth
 esm |> 
   filter(method_longest != "fd_fd_fd") |> 
   group_by(depth_std, method_longest) |> 
   dplyr::summarize(mean_mass = round(mean(soil_mass, na.rm=TRUE), 0)) |> 
-  pivot_wider(names_from = method_longest, values_from = mean_mass) |> 
-  flextable()
+  pivot_wider(names_from = method_longest, values_from = mean_mass)
 ```
 
 # How does ESM choice influence total calculated SOC stocks?
@@ -405,7 +402,7 @@ mean_diff_project <- soc_method_minmaxdiff |>
             min_diff_soc_cum = round(min(diff_soc_cum), 2),
             max_diff_soc_cum = round(max(diff_soc_cum), 2))
 
-flextable(mean_diff_project)
+mean_diff_project
 
 mean_diff <- soc_method_minmaxdiff |>
   ungroup() |>
@@ -415,7 +412,7 @@ mean_diff <- soc_method_minmaxdiff |>
             max_pct_diff_soc_cum = round(max(pct_diff_soc_cum), 1),
             mean_pct_diff_soc_cum = round(mean(pct_diff_soc_cum), 1))
 
-flextable(mean_diff)
+mean_diff
 ```
 
 ## Effect of stock calculation method on incremental SOC stocks
@@ -473,8 +470,7 @@ soc_cum_summary <- esm |>
 soc_cum_summary |> 
   group_by(esm_depth, label) |> 
   dplyr::summarize(min = min(mean),
-            max = max(mean)) |> 
-  flextable()
+            max = max(mean)) 
 
 soc_inc_summary <- esm |> 
   group_by(method_longest, esm_depth, label) |> 
@@ -485,8 +481,7 @@ soc_inc_summary |>
   ungroup() |> 
   group_by(esm_depth) |> 
   dplyr::summarize(min_mean = min(mean),
-            max_mean = max(mean)) |> 
-  flextable()
+            max_mean = max(mean))
 ```
 
 ## Management sensitivity of incremental SOC stocks
@@ -567,15 +562,13 @@ esm_diff <- esm |>
 esm_diff |> 
   group_by(label, depth_std, method_longest) |> 
   dplyr::summarize(mean_diff = round(mean(diff_soc_cum), 1),
-            n = n()) |> 
-  flextable()
+            n = n()) 
 
 # Calculate mean sequestration estimates for each treatment, incremental depth, and method
 esm_diff |> 
   group_by(label, depth_std, method_longest) |> 
   dplyr::summarize(mean_dsoc_inc = round(mean(diff_soc), 1)) |> 
-  arrange(label, depth_std, mean_dsoc_inc) |> 
-  flextable()
+  arrange(label, depth_std, mean_dsoc_inc)
 ```
 
 ## Incremental SOC sequestration with different calculation methods
@@ -824,8 +817,7 @@ anova_inc_table
 esm_inc_error |> 
   group_by(depth_std, method_longest) |> 
   summarize(mean_pct_error = round(mean(pct_error), 3) * 100) |> 
-  arrange(depth_std, mean_pct_error) |> 
-  flextable()
+  arrange(depth_std, mean_pct_error)
 ```
 
 ## Incremental error for each project

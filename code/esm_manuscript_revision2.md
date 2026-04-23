@@ -1,7 +1,7 @@
 esm_manuscript_revision2
 ================
 Katy Dynarski
-2026-04-13
+2026-04-23
 
 # Overview
 
@@ -13,21 +13,10 @@ tested four different reference mass options:
 
 - Minimum soil mass in an individual DSP4SH project (ESM project, min)
 - Mean soil mass in an individual DSP4SH project (ESM project, mean)
-- Minimum soil mass in the reference treatment in an individual DSP4SH
-  project (ESM treatment, min)
-- Mean soil mass in the reference treatment in an individual DSP4SH
-  project (ESM treatment, mean)
-
-I wanted to test just using data from the reference treatment to
-calculate the reference mass because a number of studies calculated
-their reference mass as either the mean or minimum soil mass in the
-treatment expected to have the lowest bulk density.
-
-I also re-calculated bulk density after reading through the SimpleESM
-documentation again. We did not originally account for coarse fragment
-content, so I re-calculated bulk density to correct for coarse fragment
-content. It looks like this resolved some of the weird numbers we were
-getting for soils high in coarse frags (e.g. the Oregon State project).
+- Minimum soil mass in the control group (Ref) in an individual DSP4SH
+  project (ESM control, min)
+- Mean soil mass in the control group (Ref) in an individual DSP4SH
+  project (ESM control, mean)
 
 # Climate and soils data for each project
 
@@ -204,38 +193,17 @@ management treatments in each project.
 Plot bulk density:
 
 ``` r
-bd <- horizon_data |>
-  filter(!project=="UTRGV") |>
-  select(project, label, dsp_pedon_id, dsp_sample_id, hrzdep_t, hrzdep_b, bd_hybrid)
-
-ggplot(bd |> filter(project=="NCState"), aes(x=hrzdep_b, y=bd_hybrid, color=label)) +
-  geom_point() +
-  geom_text(data = bd |> filter(project=="NCState") |> filter(bd_hybrid > 2.25 | bd_hybrid < 0.5),
-            aes(hrzdep_b, bd_hybrid, label = dsp_pedon_id))
-```
-
-![](esm_manuscript_revision2_files/figure-gfm/nc%20state%20bd-1.png)<!-- -->
-
-``` r
-coop <- read.csv(here("..", "dsp4sh_prelim", "data_raw", "dsp4sh_soc_df_KAD.csv")) |> janitor::clean_names()
-nc <- coop |> filter(project=="NCState")
-
-# promote to SPC
-aqp::depths(nc) <- dsp_pedon_id ~ hrzdep_t + hrzdep_b
-
-plotSPC(nc, color="bulk_density")
-```
-
-![](esm_manuscript_revision2_files/figure-gfm/check%20nc%20state%20profile%20details-1.png)<!-- -->
-
-``` r
 # Plot bulk density for each project/treatment
 ggplot(bd_depth, aes(x=depth, y=depth_wt_bd, fill=label)) +
-  geom_boxplot(fatten=1.6, lwd=0.25, outlier.size=0.6) +
+  geom_point(aes(color=label), pch = 21, position=position_jitterdodge(), size=0.7) +
+  geom_boxplot(median.linewidth = 0.3, lwd=0.25, outlier.size=0.6) +
   facet_wrap(~project, scales="free_y", labeller=labeller(project=project_labels_esm)) +
   scale_fill_manual(values=mgmt_pal,
-                     breaks=c("BAU", "SHM", "Ref"), 
+                    breaks=c("BAU", "SHM", "Ref"), 
                     name="Management") +
+  scale_color_manual(values=mgmt_pal,
+                     breaks=c("BAU", "SHM", "Ref"), 
+                     name="Management") +
   labs(x="Depth", y=expression("Bulk density"~(g ~ cm^-3))) +
   theme_katy() +
   theme(axis.text.x=element_text(hjust=1, angle=45))
@@ -244,16 +212,14 @@ ggplot(bd_depth, aes(x=depth, y=depth_wt_bd, fill=label)) +
     ## Warning: Removed 4 rows containing non-finite outside the scale range
     ## (`stat_boxplot()`).
 
-    ## Warning: The `fatten` argument of `geom_boxplot()` is deprecated as of ggplot2 4.0.0.
-    ## ℹ Please use the `median.linewidth` argument instead.
-    ## This warning is displayed once every 8 hours.
-    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-    ## generated.
+    ## Warning: Removed 4 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
 
 ![](esm_manuscript_revision2_files/figure-gfm/fig%202%20plot%20bulk%20density%20by%20depth%20increment-1.png)<!-- -->
 
 ``` r
-# ggsave(here("figs", "revision_figs", "figsupp2_bulk_density.png"), width=140, height=100, units="mm", dpi=400)
+# ggsave(here("figs", "revision2_figs", "fig2_bd.png"), width=140, height=100, units="mm", dpi=400)
+# ggsave(here("figs", "revision2_figs", "fig2.pdf"), width=140, height=100, units="mm", dpi=400)
 ```
 
 ``` r
@@ -307,11 +273,16 @@ Summary table for text:
 esm |> 
   group_by(depth_std) |> 
   dplyr::summarize(min_mass = round(min(soil_mass), 0),
-            max_mass = round(max(soil_mass), 0)) |> 
-  flextable()
+            max_mass = round(max(soil_mass), 0))
 ```
 
-<img src="esm_manuscript_revision2_files/figure-gfm/summary table of reference masses for text-1.png" width="504" />
+    ## # A tibble: 4 × 3
+    ##   depth_std min_mass max_mass
+    ##       <dbl>    <dbl>    <dbl>
+    ## 1         5      156      915
+    ## 2        10      252     1015
+    ## 3        30     1569     4911
+    ## 4        60     2109     6808
 
 ``` r
 # mean reference mass for each method/depth
@@ -345,6 +316,25 @@ What is the difference between the smallest and largest SOC stocks
 calculated for a particular pedon using these different methods?
 
 ``` r
+# summary of projects with the highest and lowest SOC stocks
+esm |>
+  group_by(depth_std, project, label) |>
+  dplyr::summarize(mean = round(mean(soc_cum),1)) |> 
+  filter(depth_std == 60) |> 
+  ungroup() |> 
+  slice(which.max(mean), which.min(mean))
+```
+
+    ## `summarise()` has grouped output by 'depth_std', 'project'. You can override
+    ## using the `.groups` argument.
+
+    ## # A tibble: 2 × 4
+    ##   depth_std project         label  mean
+    ##       <dbl> <fct>           <fct> <dbl>
+    ## 1        60 UnivOfMinnesota Ref   237. 
+    ## 2        60 TexasA&MPt-1    BAU    16.2
+
+``` r
 soc_method_summary <- esm |>
   group_by(depth_std, method_longest) |>
   dplyr::summarize(mean = round(mean(soc_cum),1))
@@ -374,10 +364,21 @@ mean_diff_project <- soc_method_minmaxdiff |>
             min_diff_soc_cum = round(min(diff_soc_cum), 2),
             max_diff_soc_cum = round(max(diff_soc_cum), 2))
 
-flextable(mean_diff_project)
+mean_diff_project
 ```
 
-<img src="esm_manuscript_revision2_files/figure-gfm/soc stock methods summary-1.png" width="1199" />
+    ## # A tibble: 9 × 4
+    ##   project             mean_diff_soc_cum min_diff_soc_cum max_diff_soc_cum
+    ##   <fct>                           <dbl>            <dbl>            <dbl>
+    ## 1 UConn                            4.53             1.25             6.01
+    ## 2 Illinois                         9.24             2.52            57.5 
+    ## 3 KansasState                     11.9              8.12            22.8 
+    ## 4 UnivOfMinnesota                 37.8             11.8             86.7 
+    ## 5 NCState                         11.3              0.57            27.7 
+    ## 6 OregonStateJory                 25.6              7.62            39.8 
+    ## 7 OregonStateWoodburn             13.2              2.75            35.3 
+    ## 8 TexasA&MPt-1                     4.48             2.52             8.55
+    ## 9 WashingtonState                 22.2              2.27            50.2
 
 ``` r
 mean_diff <- soc_method_minmaxdiff |>
@@ -388,10 +389,14 @@ mean_diff <- soc_method_minmaxdiff |>
             max_pct_diff_soc_cum = round(max(pct_diff_soc_cum), 1),
             mean_pct_diff_soc_cum = round(mean(pct_diff_soc_cum), 1))
 
-flextable(mean_diff)
+mean_diff
 ```
 
-<img src="esm_manuscript_revision2_files/figure-gfm/soc stock methods summary-2.png" width="1557" />
+    ## # A tibble: 1 × 5
+    ##   mean_diff_soc_cum min_diff_soc_cum max_diff_soc_cum max_pct_diff_soc_cum
+    ##               <dbl>            <dbl>            <dbl>                <dbl>
+    ## 1              17.0             0.57             86.7                 59.3
+    ## # ℹ 1 more variable: mean_pct_diff_soc_cum <dbl>
 
 ## Effect of stock calculation method on incremental SOC stocks
 
@@ -438,6 +443,12 @@ ggplot(esm, aes(x=method_longest, y=soc, fill=method_longest)) +
         legend.position="none")
 ```
 
+    ## Warning: The `fatten` argument of `geom_boxplot()` is deprecated as of ggplot2 4.0.0.
+    ## ℹ Please use the `median.linewidth` argument instead.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
+
 ![](esm_manuscript_revision2_files/figure-gfm/fig%20supp2%20aov%20and%20increment%20stock%20calculation%20method-1.png)<!-- -->
 
 ``` r
@@ -462,14 +473,28 @@ soc_cum_summary <- esm |>
 soc_cum_summary |> 
   group_by(esm_depth, label) |> 
   dplyr::summarize(min = min(mean),
-            max = max(mean)) |> 
-  flextable()
+            max = max(mean)) 
 ```
 
     ## `summarise()` has grouped output by 'esm_depth'. You can override using the
     ## `.groups` argument.
 
-<img src="esm_manuscript_revision2_files/figure-gfm/mean SOC stock in all treatments depths and calc methods-1.png" width="628" />
+    ## # A tibble: 12 × 4
+    ## # Groups:   esm_depth [4]
+    ##    esm_depth label   min   max
+    ##    <fct>     <fct> <dbl> <dbl>
+    ##  1 0-5 cm    BAU     6.9  12.1
+    ##  2 0-5 cm    SHM     8.2  13.8
+    ##  3 0-5 cm    Ref    15.4  22.8
+    ##  4 5-10 cm   BAU    15.9  24.9
+    ##  5 5-10 cm   SHM    17.1  25.2
+    ##  6 5-10 cm   Ref    28.7  39.9
+    ##  7 10-30 cm  BAU    50.3  65.3
+    ##  8 10-30 cm  SHM    45    57.8
+    ##  9 10-30 cm  Ref    74.1  96  
+    ## 10 30-60 cm  BAU    87.4 100  
+    ## 11 30-60 cm  SHM    73.5  87.5
+    ## 12 30-60 cm  Ref   124.  145
 
 ``` r
 soc_inc_summary <- esm |> 
@@ -486,11 +511,16 @@ soc_inc_summary |>
   ungroup() |> 
   group_by(esm_depth) |> 
   dplyr::summarize(min_mean = min(mean),
-            max_mean = max(mean)) |> 
-  flextable()
+            max_mean = max(mean))
 ```
 
-<img src="esm_manuscript_revision2_files/figure-gfm/mean SOC stock in all treatments depths and calc methods-2.png" width="528" />
+    ## # A tibble: 4 × 3
+    ##   esm_depth min_mean max_mean
+    ##   <fct>        <dbl>    <dbl>
+    ## 1 0-5 cm         6.9     22.8
+    ## 2 5-10 cm        8.9     17.1
+    ## 3 10-30 cm      27.9     56.1
+    ## 4 30-60 cm      28.5     51.1
 
 ## Management sensitivity of incremental SOC stocks
 
@@ -527,8 +557,8 @@ mgmt_inc_aov_letters <- esm |>
 
 ``` r
 ggplot(esm, aes(x=method_longest, y=soc, fill=label)) +
-  geom_point(aes(color=label), pch = 21, position=position_jitterdodge(), alpha=0.8, size=0.7) +
-  geom_boxplot(fatten=1.6, lwd=0.25, outlier.shape=NA) +
+  geom_point(aes(color=label), pch = 21, position=position_jitterdodge(), size=0.7) +
+  geom_boxplot(median.linewidth=0.3, lwd=0.25, outlier.shape=NA) +
   scale_x_discrete(labels=method_labels) +
   facet_wrap(~depth_std, scales="free", labeller=labeller(depth_std=inc_depth_labels)) +
   geom_text(data=mgmt_inc_aov_letters, 
@@ -549,6 +579,7 @@ ggplot(esm, aes(x=method_longest, y=soc, fill=label)) +
 
 ``` r
 # ggsave(here("figs", "revision2_figs", "fig3_soc_mgmt_inc.png"), width=120, height=100, units="mm", dpi=400)
+# ggsave(here("figs", "revision2_figs", "fig3.pdf"), width=120, height=100, units="mm", dpi=400)
 ```
 
 # Calculation method influence on SOC sequestration
@@ -588,28 +619,54 @@ esm_diff <- esm |>
 esm_diff |> 
   group_by(label, depth_std, method_longest) |> 
   dplyr::summarize(mean_diff = round(mean(diff_soc_cum), 1),
-            n = n()) |> 
-  flextable()
+            n = n()) 
 ```
 
     ## `summarise()` has grouped output by 'label', 'depth_std'. You can override
     ## using the `.groups` argument.
 
-<img src="esm_manuscript_revision2_files/figure-gfm/calculate difference between BAU and Ref/SHM SOC stocks-1.png" width="965" />
+    ## # A tibble: 40 × 5
+    ## # Groups:   label, depth_std [8]
+    ##    label depth_std method_longest      mean_diff     n
+    ##    <fct>     <dbl> <fct>                   <dbl> <int>
+    ##  1 SHM           5 esm2_min_project          2.5    77
+    ##  2 SHM           5 esm2_min_treatment        2.9    77
+    ##  3 SHM           5 esm2_mean_project         3.7    77
+    ##  4 SHM           5 esm2_mean_treatment       3.6    77
+    ##  5 SHM           5 fd_fd_fd                  3.3    77
+    ##  6 SHM          10 esm2_min_project          4.2    77
+    ##  7 SHM          10 esm2_min_treatment        4.6    77
+    ##  8 SHM          10 esm2_mean_project         4.4    77
+    ##  9 SHM          10 esm2_mean_treatment       4.6    77
+    ## 10 SHM          10 fd_fd_fd                  4.1    77
+    ## # ℹ 30 more rows
 
 ``` r
 # Calculate mean sequestration estimates for each treatment, incremental depth, and method
 esm_diff |> 
   group_by(label, depth_std, method_longest) |> 
   dplyr::summarize(mean_dsoc_inc = round(mean(diff_soc), 1)) |> 
-  arrange(label, depth_std, mean_dsoc_inc) |> 
-  flextable()
+  arrange(label, depth_std, mean_dsoc_inc)
 ```
 
     ## `summarise()` has grouped output by 'label', 'depth_std'. You can override
     ## using the `.groups` argument.
 
-<img src="esm_manuscript_revision2_files/figure-gfm/calculate difference between BAU and Ref/SHM SOC stocks-2.png" width="895" />
+    ## # A tibble: 40 × 4
+    ## # Groups:   label, depth_std [8]
+    ##    label depth_std method_longest      mean_dsoc_inc
+    ##    <fct>     <dbl> <fct>                       <dbl>
+    ##  1 SHM           5 esm2_min_project              2.5
+    ##  2 SHM           5 esm2_min_treatment            2.9
+    ##  3 SHM           5 fd_fd_fd                      3.3
+    ##  4 SHM           5 esm2_mean_treatment           3.6
+    ##  5 SHM           5 esm2_mean_project             3.7
+    ##  6 SHM          10 esm2_mean_project             0.7
+    ##  7 SHM          10 fd_fd_fd                      0.8
+    ##  8 SHM          10 esm2_mean_treatment           1  
+    ##  9 SHM          10 esm2_min_treatment            1.6
+    ## 10 SHM          10 esm2_min_project              1.7
+    ## # ℹ 30 more rows
 
 ## Incremental SOC sequestration with different calculation methods
 
@@ -680,6 +737,7 @@ ggplot(esm_diff, aes(x=method_longest, y=diff_soc, fill=method_longest)) +
 
 ``` r
 # ggsave(here("figs", "revision2_figs", "fig4_dsoc_inc.png"), width=140, height=120, units="mm", dpi=400)
+# ggsave(here("figs", "revision2_figs", "fig4.pdf"), width=140, height=120, units="mm", dpi=400)
 ```
 
 Plot for each project:
@@ -890,10 +948,10 @@ ggplot(esm_inc_error_sub, aes(x=method_longest, y=pct_error, fill=method_longest
   scale_x_discrete(labels=method_labels) +
   scale_y_continuous(labels = scales::percent,
                      expand = expansion(mult = c(.05, .2))) +
-  scale_fill_paletteer_d("nationalparkcolors::Arches",
-                         name="Calculation method") +
-  scale_color_paletteer_d("nationalparkcolors::Arches",
-                          name="Calculation method") +
+  scale_fill_manual(values = method_pal, 
+                    name="Calculation method") +
+  scale_color_manual(values = method_pal, 
+                     name="Calculation method") +
   theme_katy() +
   theme(axis.text.x=element_text(angle=45, hjust=1),
         legend.position="none")
@@ -903,6 +961,7 @@ ggplot(esm_inc_error_sub, aes(x=method_longest, y=pct_error, fill=method_longest
 
 ``` r
 # ggsave(here("figs", "revision2_figs", "fig5_dsoc_inc_error.png"), width=140, height=120, units="mm", dpi=400)
+# ggsave(here("figs", "revision2_figs", "fig5.pdf"), width=140, height=120, units="mm", dpi=400)
 ```
 
 ### ANOVA table
@@ -942,14 +1001,32 @@ anova_inc_table
 esm_inc_error |> 
   group_by(depth_std, method_longest) |> 
   summarize(mean_pct_error = round(mean(pct_error), 3) * 100) |> 
-  arrange(depth_std, mean_pct_error) |> 
-  flextable()
+  arrange(depth_std, mean_pct_error)
 ```
 
     ## `summarise()` has grouped output by 'depth_std'. You can override using the
     ## `.groups` argument.
 
-<img src="esm_manuscript_revision2_files/figure-gfm/dsoc incremental error table-1.png" width="747" />
+    ## # A tibble: 16 × 3
+    ## # Groups:   depth_std [4]
+    ##    depth_std method_longest      mean_pct_error
+    ##        <dbl> <fct>                        <dbl>
+    ##  1         5 esm2_min_treatment            15.3
+    ##  2         5 esm2_mean_treatment           46  
+    ##  3         5 esm2_mean_project             69.3
+    ##  4         5 fd_fd_fd                     230. 
+    ##  5        10 esm2_min_treatment            12.5
+    ##  6        10 esm2_mean_treatment          120. 
+    ##  7        10 esm2_mean_project            238. 
+    ##  8        10 fd_fd_fd                     302. 
+    ##  9        30 esm2_min_treatment            85.2
+    ## 10        30 esm2_mean_treatment          190. 
+    ## 11        30 esm2_mean_project            215. 
+    ## 12        30 fd_fd_fd                     315. 
+    ## 13        60 esm2_min_treatment            94.5
+    ## 14        60 esm2_mean_project            230. 
+    ## 15        60 esm2_mean_treatment          233. 
+    ## 16        60 fd_fd_fd                     333.
 
 ## Incremental error for each project
 
@@ -1002,6 +1079,7 @@ purrr::map(.x = projects,
              esm_inc_error |> 
                filter(project==.x)  |> 
                ggplot(aes(x=method_longest, y=pct_error, fill=method_longest)) +
+               geom_point(aes(color=method_longest), pch=21, position="jitter", alpha=0.8, size=1.3) +
                geom_boxplot(fatten=1.6, lwd=0.25, outliers=FALSE) +
                geom_abline(intercept=0, slope=0, linetype="dashed", linewidth=0.3) +
                geom_text(data=dsoc_inc_error_each_letters_df2 |> filter(project == .x), 
@@ -1011,8 +1089,10 @@ purrr::map(.x = projects,
                facet_grid(depth_std~label, scales="free", labeller=labeller(depth_std=inc_depth_labels)) +
                scale_x_discrete(labels=method_labels) +
                scale_y_continuous(labels = scales::percent) +
-               scale_fill_paletteer_d("nationalparkcolors::Arches",
-                                      name="Calculation method") + 
+               scale_fill_manual(values = method_pal,
+                                 name="Calculation method") + 
+               scale_color_manual(values = method_pal,
+                                  name="Calculation method") + 
                theme_katy() +
                theme(axis.text.x=element_text(angle=45, hjust=1),
                      legend.position="none")
@@ -1177,9 +1257,9 @@ fd_sig_reg <- fd_reg |>
 
 ``` r
 ggplot(fd_error, aes(x=bd_diff, y=inc_delta_soc_error)) +
-  geom_point(aes(color=project, shape=label), size = 2) +
   geom_abline(slope=0, intercept=1, linetype="dashed") +
   geom_vline(xintercept=0, linetype="dashed") +
+  geom_point(aes(color=project, shape=label), size = 2) +
   geom_smooth(data=fd_error |>  filter(method_depth %in% fd_sig_reg$method_depth),
               method="lm", se=FALSE, color="black") +
   geom_text(data=fd_sig_reg,
@@ -1200,6 +1280,7 @@ ggplot(fd_error, aes(x=bd_diff, y=inc_delta_soc_error)) +
 
 ``` r
 # ggsave(here("figs", "revision2_figs", "fig6_fd_dsoc_error_vs_bd_error.png"), width=150, height=110, units="mm", dpi=400)
+# ggsave(here("figs", "revision2_figs", "fig6.pdf"), width=150, height=110, units="mm", dpi=400)
 ```
 
 Also show dSOC error vs BD error for ESM methods:
@@ -1232,9 +1313,9 @@ error_methods_to_plot <- esm_inc_error_bd_error |>
   unite("method_depth", c("method_longest", "depth_std"), remove=FALSE)
 
 ggplot(error_methods_to_plot, aes(x=bd_diff, y=inc_delta_soc_error)) +
-  geom_point(aes(color=project)) +
   geom_abline(slope=0, intercept=1, linetype="dashed") +
   geom_vline(xintercept=0, linetype="dashed") +
+  geom_point(aes(color=project)) +
   geom_smooth(data=error_methods_to_plot |>  filter(method_depth %in% sig_reg$method_depth),
                            method="lm", color="black", lwd=0.5, se=FALSE) +
   geom_text(data=sig_reg,
@@ -1289,9 +1370,9 @@ dsoc_to_plot <- esm_inc_error_bd_error |>
 
 # plot error against true delta SOC
 ggplot(dsoc_to_plot, aes(x=true_inc_delta_soc, y=inc_delta_soc_error)) +
-  geom_point(aes(color=project)) +
   geom_hline(yintercept=0, linetype="dashed") +
   geom_vline(xintercept=0, linetype="dashed") +
+    geom_point(aes(color=project)) +
   geom_smooth(data=dsoc_to_plot |>  filter(method_depth %in% sig_reg$method_depth),
                            method="lm", color="black", lwd=0.5, se=FALSE) +
   geom_text(data=dsoc_sig_reg,
