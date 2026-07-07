@@ -17,9 +17,10 @@ soil_mass_aggregate_hybrid <- function(input, depth){
   #Initialize output vector
   out <- vector("list", length(depth))
   
-  min_mean <- list(
+  min_mean_max <- list(
     min = ~min(.x, na.rm=TRUE), 
-    mean = ~mean(.x, na.rm=TRUE)
+    mean = ~mean(.x, na.rm=TRUE),
+    max = ~max(.x, na.rm=TRUE)
   )
   
   for (i in seq_along(depth)) {
@@ -43,7 +44,7 @@ soil_mass_aggregate_hybrid <- function(input, depth){
   
   out_bind %>%
     group_by(depth_cat) %>%
-    dplyr::summarize(across(mass_agg, min_mean))
+    dplyr::summarize(across(mass_agg, min_mean_max))
   
 }
 
