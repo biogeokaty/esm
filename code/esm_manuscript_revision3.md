@@ -1,7 +1,7 @@
 esm_manuscript_revision2
 ================
 Katy Dynarski
-2026-07-07
+2026-07-27
 
 # Overview
 
@@ -9,14 +9,17 @@ Katy Dynarski
 
 I calculated SOC stocks in 0-5 cm, 5-10 cm, 10-30 cm, and 30-60 cm depth
 increments via fixed depth and ESM methods. For the ESM calculations, I
-tested four different reference mass options:
+tested six different reference mass options:
 
 - Minimum soil mass in an individual DSP4SH project (ESM project, min)
 - Mean soil mass in an individual DSP4SH project (ESM project, mean)
+- Maximum soil mass in an individual DSP4SH project (ESM project, max)
 - Minimum soil mass in the control group (Ref) in an individual DSP4SH
   project (ESM control, min)
 - Mean soil mass in the control group (Ref) in an individual DSP4SH
   project (ESM control, mean)
+- Maximum soil mass in the control group (Ref) in an individual DSP4SH
+  project (ESM control, max)
 
 # Climate and soils data for each project
 
@@ -655,8 +658,7 @@ ggplot(esm, aes(x=method_longest, y=soc, fill=label)) +
 ![](esm_manuscript_revision3_files/figure-gfm/fig%20supp3%20soc%20mgmt%20incremental%20aov%20letters-1.png)<!-- -->
 
 ``` r
-ggsave(here("figs", "revision3_figs", "fig3_soc_mgmt_inc.png"), width=160, height=130, units="mm", dpi=400)
-# ggsave(here("figs", "revision3_figs", "fig3.pdf"), width=120, height=100, units="mm", dpi=400)
+# ggsave(here("figs", "revision3_figs", "figsupp3_soc_mgmt_inc.png"), width=160, height=130, units="mm", dpi=400)
 ```
 
 # Calculation method influence on SOC sequestration
@@ -829,8 +831,8 @@ ggplot(esm_diff, aes(x=method_longest, y=diff_soc, fill=method_longest)) +
 ![](esm_manuscript_revision3_files/figure-gfm/fig3%20dsoc%20incremental-1.png)<!-- -->
 
 ``` r
-# ggsave(here("figs", "revision3_figs", "fig4_dsoc_inc.png"), width=180, height=160, units="mm", dpi=400)
-# ggsave(here("figs", "revision3_figs", "fig4.pdf"), width=180, height=160, units="mm", dpi=400)
+# ggsave(here("figs", "revision3_figs", "fig3_dsoc_inc.png"), width=180, height=160, units="mm", dpi=400)
+# ggsave(here("figs", "revision3_figs", "fig3.pdf"), width=180, height=160, units="mm", dpi=400)
 ```
 
 Plot for each project:
@@ -1154,8 +1156,8 @@ ggplot(esm_inc_error_sub, aes(x=stat_data, y=pct_error, fill=stat_data)) +
 ![](esm_manuscript_revision3_files/figure-gfm/fig4%20inc%20dsoc%20error%20plot-1.png)<!-- -->
 
 ``` r
-# ggsave(here("figs", "revision3_figs", "fig5_dsoc_inc_error.png"), width=180, height=160, units="mm", dpi=400)
-# ggsave(here("figs", "revision3_figs", "fig5.pdf"), width=180, height=160, units="mm", dpi=400)
+# ggsave(here("figs", "revision3_figs", "fig4_dsoc_inc_error.png"), width=180, height=160, units="mm", dpi=400)
+# ggsave(here("figs", "revision3_figs", "fig4.pdf"), width=180, height=160, units="mm", dpi=400)
 ```
 
 ### ANOVA table
@@ -1486,8 +1488,8 @@ ggplot(fd_error, aes(x=bd_diff, y=inc_delta_soc_error)) +
 ![](esm_manuscript_revision3_files/figure-gfm/fig%205%20dsoc%20error%20vs%20bd%20error%20fixed%20depth-1.png)<!-- -->
 
 ``` r
-# ggsave(here("figs", "revision3_figs", "fig6_fd_dsoc_error_vs_bd_error.png"), width=160, height=120, units="mm", dpi=400)
-# ggsave(here("figs", "revision3_figs", "fig6.pdf"), width=160, height=120, units="mm", dpi=400)
+# ggsave(here("figs", "revision3_figs", "fig5_fd_dsoc_error_vs_bd_error.png"), width=160, height=120, units="mm", dpi=400)
+# ggsave(here("figs", "revision3_figs", "fig5.pdf"), width=160, height=120, units="mm", dpi=400)
 ```
 
 Also show dSOC error vs BD error for ESM methods:
@@ -1544,7 +1546,7 @@ ggplot(error_methods_to_plot, aes(x=bd_diff, y=inc_delta_soc_error)) +
 ![](esm_manuscript_revision3_files/figure-gfm/fig%20s22%20dsoc%20error%20vs%20bd%20error%20for%20esm%20methods-1.png)<!-- -->
 
 ``` r
-# ggsave(here("figs", "revision3_figs", "figsupp3_all_methods_dsoc_error_vs_bd_error.png"), width=180, height=160, units="mm", dpi=400)
+# ggsave(here("figs", "revision3_figs", "figsupp22_all_methods_dsoc_error_vs_bd_error.png"), width=180, height=160, units="mm", dpi=400)
 ```
 
 Error in FD dSOC compared to ESM(mean) dSOC is significantly correlated
@@ -1552,26 +1554,7 @@ with the difference between sample BD and mean BAU bd - in other words,
 when bulk density changes between treatments, FD results are more biased
 compared to ESM.
 
-## What’s up with the error outliers - relationship between dSOC error and soil mass at each depth?
-
-``` r
-error_outliers <- esm_inc_error_all |> 
-  mutate(big_error = pct_error > 10) |> 
-  filter(big_error == TRUE)
-
-ggplot(error_outliers, aes(x = true_inc_delta_soc, y = abs_error)) +
-  geom_point(aes(color = stat_data)) +
-  facet_wrap(~depth_std)
-```
-
-![](esm_manuscript_revision3_files/figure-gfm/dsoc%20error%20outliers-1.png)<!-- -->
-
-``` r
-# and also find where the error is really low
-error_low <- esm_inc_error_all |> 
-  mutate(small_error = pct_error < .01) |> 
-  filter(small_error = TRUE)
-```
+## What drives cubic spline interpolation error?
 
 Compare linear interpolation to cubic spline interpolation
 
@@ -1758,15 +1741,15 @@ min_error_plot3 + mean_error_plot3 + max_error_plot3 +
 ![](esm_manuscript_revision3_files/figure-gfm/fig6%20plot%20actual%20mass%20vs%20depth-1.png)<!-- -->
 
 ``` r
-# ggsave(here("figs", "revision3_figs", "interpolation_profiles_alt.png"), width = 190, height = 140, units = "mm")
+# ggsave(here("figs", "revision3_figs", "fig6_interpolation_profiles.png"), width = 190, height = 140, units = "mm")
 ```
 
-Okay, this is actually really helpful! The thicker, purple line shows
-the results of linear interpolation, aka “classical” ESM in which the
-soil profile is discretized and 1 mm layers are summed in order to reach
-the reference mass. Looks here like most of the “errors” associated with
-the cubic spline interpolation occur in the big jump in SOC mass in the
-deeper depths…honestly the cubic spline is more likely to be correct.
+The thicker, purple line shows the results of linear interpolation, aka
+“classical” ESM in which the soil profile is discretized and 1 mm layers
+are summed in order to reach the reference mass. Looks here like most of
+the “errors” associated with the cubic spline interpolation occur in the
+big jump in SOC mass in the deeper depths…honestly the cubic spline is
+more likely to be correct.
 
 Also plot the soil profiles:
 
