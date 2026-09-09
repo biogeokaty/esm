@@ -6,6 +6,6 @@ Equivalent soil mass calculations were performed using the SimpleESM R script by
 
 **Repo contents:**
 
-* Code to perform analyses, tables, and figures in manuscript: code/esm_manuscript_revision3.Rmd
-* Report with tables and figures from manuscript: code/esm_manuscript_revision3.md
-* Code to prepare data for SimpleESM script: code/esm_input_revision3.R
+* Code to perform analyses, tables, and figures in manuscript: code/esm_manuscript_revision4.Rmd
+* Report with tables and figures from manuscript: code/esm_manuscript_revision4.md
+* Code to prepare data for SimpleESM script: code/esm_input_revision4.R
